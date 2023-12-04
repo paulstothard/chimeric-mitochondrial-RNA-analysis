@@ -1,4 +1,5 @@
-aliases.csv
 .DS_Store
+.RData
+.Rhistory
 *.code-workspace
 .vscode/
