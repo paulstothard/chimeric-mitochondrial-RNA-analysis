@@ -46,10 +46,10 @@ library(writexl)
 
 # Assign command line arguments to variables for input, metadata, and output
 # TODO: Modify these paths according to your dataset structure
-input_folder <- "../star-fusion-results/human-Twinkle-mutation" # Path to input data
-metadata_folder <- "../SRA-metadata/human-Twinkle-mutation" # Path to metadata
-output_folder <- "../star-fusion-results-summary/human-Twinkle-mutation" # Path for output
-pca_color_by <- "Genotype" # Variable for color coding in PCA plot
+input_folder <- "../star-fusion-results/human-aging-brain" # Path to input data
+metadata_folder <- "../SRA-metadata/human-aging-brain" # Path to metadata
+output_folder <- "../star-fusion-results-summary/human-aging-brain" # Path for output
+pca_color_by <- "Age_at_death" # Variable for color coding in PCA plot
 
 # Modify this function to perform dataset-specific processing prior to output
 # TODO: Customize the data processing steps for your specific dataset needs
@@ -62,11 +62,7 @@ dataset_specific_processing <- function(df) {
   # Placeholder for dataset-specific data manipulation
   # Example: df <- df %>% mutate(new_column = existing_column * 2)
   df <- df %>%
-    rename(Genotype = genotype)
-  
-  df$Genotype <- sub("^(.)", "\\U\\1", df$Genotype, perl = TRUE)
-  
-  df <- subset(df, time == "4 months")
+    rename(Age_at_death = age_at_death)
 
   # Return the (possibly modified) data frame
   return(df)
@@ -274,3 +270,4 @@ generate_and_save_plot("FFPM-PCA-loadings-labelled.pdf", FALSE, 19, TRUE, TRUE)
 
 # Print completion message
 print(paste("The PDF files have been saved in the following directory:", output_folder))
+

@@ -1,12 +1,15 @@
 # chimeric-mitochondrial-RNA-analysis
 
-This repository describes the methods used to characterize chimeric mitochondrial RNA transcripts in RNA-Seq datasets.
+This repository describes the methods used to characterize chimeric mitochondrial RNA transcripts in RNA-Seq datasets. The results of this work are included in the following publication:
+
+Chimeric mitochondrial RNA transcripts in mitochondrial genetic diseases and aging
+Amy R. Vandiver, Allen Herbst, Paul Stothard, Jonathan Wanagat
 
 ## Overview
 
-STAR-Fusion is used to identify candidate fusion transcripts. Custom GTF files are used with STAR-Fusion in order to convey that the MT-ATP8 and MT-ATP6 genes are encoded within a single overlapping transcript that, although detected by STAR-Fusion, does not represent a chimeric mitochondrial RNA. Similarly, GTF information for the MT-ND4l and Mt-ND4 genes is modified to reflect that they are normally expressed as a single transcript. The custom GTF files are available in the `custom-GTFs` directory.
+STAR-Fusion is used to identify candidate fusion transcripts. Custom GTF files are used with STAR-Fusion in order to convey that the MT-ATP8 and MT-ATP6 genes and MT-ND4l and Mt-ND4 genes are encoded within single transcripts that do not represent chimeric mitochondrial RNA. The custom GTF files are available in the `custom-GTFs` directory.
 
-R scripts are used to parse the STAR-fusion output files and to enumerate mitochondrial gene fusions within each sample. For each sample the STAR-Fusion results are processed as follows. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The tables are written to a single Excel file as separate sheets. PCA plots with and without sample labels and loadings are produced from the FFPM table.
+For each dataset an R script is used to parse the STAR-fusion output files and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
 
 The final output of the analysis for each dataset is provided in the `star-fusion-results-summary` directory.
 
@@ -181,6 +184,11 @@ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 
 ```bash
 ./scripts/merge_star-fusion-results.sh rat-aging-muscle-data-results star-fusion-results/rat-aging-muscle
+```
+
+#### Add fragment counts to the rat aging muscle STAR-Fusion results
+
+```bash
 cp rat-aging-muscle-data/fragment_counts.txt star-fusion-results/rat-aging-muscle
 ```
 
@@ -214,6 +222,11 @@ Rscript scripts/summarize-rat-aging-muscle.R
 
 ```bash
 ./scripts/merge_star-fusion-results.sh human-Twinkle-mutation-data-results star-fusion-results/human-Twinkle-mutation
+```
+
+#### Add fragment counts to the human Twinkle mutation STAR-Fusion results
+
+```bash
 cp human-Twinkle-mutation-data/fragment_counts.txt star-fusion-results/human-Twinkle-mutation
 ```
 
@@ -247,13 +260,18 @@ Rscript scripts/summarize-human-Twinkle-mutation.R
 
 ```bash
 ./scripts/merge_star-fusion-results.sh human-aging-muscle-data-results star-fusion-results/human-aging-muscle
+```
+
+#### Add fragment counts to the human aging muscle STAR-Fusion results
+
+```bash
 cp human-aging-muscle-data/fragment_counts.txt star-fusion-results/human-aging-muscle
 ```
 
 #### Compare the STAR-Fusion results among samples for the human aging muscle data
 
 ```bash
-Rscript scripts/human-aging-muscle.R
+Rscript scripts/summarize-human-aging-muscle.R
 ```
 
 ### Analyze the human aging brain dataset
@@ -280,6 +298,11 @@ Rscript scripts/human-aging-muscle.R
 
 ```bash
 ./scripts/merge_star-fusion-results.sh human-aging-brain-data-results star-fusion-results/human-aging-brain
+```
+
+#### Add fragment counts to the human aging brain STAR-Fusion results
+
+```bash
 cp human-aging-brain-data/fragment_counts.txt star-fusion-results/human-aging-brain
 ```
 

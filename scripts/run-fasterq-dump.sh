@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Author: Paul Stothard
+# Contact: stothard@ualberta.ca
+
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <accession_list_file> <output_folder>"
     exit 1

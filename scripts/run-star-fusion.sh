@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Author: Paul Stothard
+# Contact: stothard@ualberta.ca
+
 cleanup() {
     echo "Caught SIGINT signal. Stopping..."
     # Stop the Docker container if it's running

@@ -1,3 +1,6 @@
+# Author: Paul Stothard
+# Contact: stothard@ualberta.ca
+
 # List of required packages
 required_packages <- c("data.table", "ggfortify", "ggplot2", "janitor", "openxlsx", "tidyverse", "writexl")
 

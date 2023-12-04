@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Author: Paul Stothard
+# Contact: stothard@ualberta.ca
+
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <folder_name>"
     exit 1
