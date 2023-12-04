@@ -4,9 +4,13 @@ This repository describes the methods used to characterize chimeric mitochondria
 
 ## Overview
 
-STAR-Fusion is used to identify candidate fusion transcripts in RNA-Seq datasets, and R scripts are used to parse the STAR-fusion output files and to enumerate mitochondrial gene fusions within each sample. Excel files and PCA plots are generated to summarize the results.
+STAR-Fusion is used to identify candidate fusion transcripts. Custom GTF files are used with STAR-Fusion in order to convey that the MT-ATP8 and MT-ATP6 genes are encoded within a single overlapping transcript that, although detected by STAR-Fusion, does not represent a chimeric mitochondrial RNA. Similarly, GTF information for the MT-ND4l and Mt-ND4 genes is modified to reflect that they are normally expressed as a single transcript. The custom GTF files are available in the `custom-GTFs` directory.
 
-For each sample the STAR-Fusion results are processed as follows. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The tables are written to a single Excel file as separate sheets. PCA plots with and without sample labels and loadings are produced from the FFPM table.
+R scripts are used to parse the STAR-fusion output files and to enumerate mitochondrial gene fusions within each sample. For each sample the STAR-Fusion results are processed as follows. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The tables are written to a single Excel file as separate sheets. PCA plots with and without sample labels and loadings are produced from the FFPM table.
+
+The final output of the analysis for each dataset is provided in the `star-fusion-results-summary` directory.
+
+The detailed analysis procedure is described below and can be used to reproduce the results.
 
 ## RNA-Seq datasets
 
@@ -21,13 +25,13 @@ Four datasets are analyzed in this study:
 
 ## Dependencies
 
-`fasterq-dump` is used to download RNA-Seq data from NCBI. `fasterq-dump` is part of the SRA Toolkit, which can be installed using conda:
+`fasterq-dump`, used to download RNA-Seq data from NCBI, can be installed using conda:
 
 ```bash
 conda install -c bioconda sra-tools
 ```
 
-STAR-Fusion version 1.10.0 is used to identify candidate fusion transcripts within RNA-Seq datasets. It can be run using a Docker image. Use the following to download the Docker image:
+STAR-Fusion version 1.10.0 is used to identify candidate fusion transcripts within RNA-Seq datasets. It can be downloaded as a Docker image:
 
 ```bash
 docker pull trinityctat/starfusion:1.10.0
@@ -39,7 +43,7 @@ The h5py Python package is used to build a Dfam file for STAR-Fusion. It can be 
 conda install -c anaconda h5py
 ```
 
-The R scripts used to summarize results require the following packages:
+The following R packages are used to parse the STAR-Fusion output files and to enumerate mitochondrial gene fusions within each sample:
 
 * data.table
 * ggfortify
@@ -86,8 +90,6 @@ hmmpress /data/rat_dfam.hmm
 
 #### Build the rat CTAT genome lib
 
-For this step the Ensembl gene transfer format (GTF) file was manually modified prior to running the CTAT genome lib building script, in order to convey that the MT-ATP8 and MT-ATP6 genes are encoded within a single overlapping transcript that, although detected by STAR-Fusion, does not represent a chimeric mitochondrial RNA. Similarly, GTF information for the MT-ND4l and Mt-ND4 genes was updated to reflect that they are normally expressed as a single transcript.
-
 The custom GTF file is available in the `custom-GTFs` directory.
 
 Decompress the rat reference genome and GTF files:
@@ -133,8 +135,6 @@ hmmpress /data/human_dfam.hmm
 ```
 
 #### Build the human CTAT genome lib
-
-For this step the Ensembl gene transfer format (GTF) file was manually modified prior to running the CTAT genome lib building script, in order to convey that the MT-ATP8 and MT-ATP6 genes are encoded within a single overlapping transcript that, although detected by STAR-Fusion, does not represent a chimeric mitochondrial RNA. Similarly, GTF information for the MT-ND4l and Mt-ND4 genes was updated to reflect that they are normally expressed as a single transcript.
 
 The custom GTF file is available in the `custom-GTFs` directory.
 
