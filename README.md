@@ -2,8 +2,8 @@
 
 This repository describes the methods used to characterize chimeric mitochondrial RNA transcripts in RNA-Seq datasets. The results of this work are included in the following publication:
 
-Chimeric mitochondrial RNA transcripts in mitochondrial genetic diseases and aging
-Amy R. Vandiver, Allen Herbst, Paul Stothard, Jonathan Wanagat
+> Chimeric mitochondrial RNA transcripts in mitochondrial genetic diseases and aging
+> Amy R. Vandiver, Allen Herbst, Paul Stothard, Jonathan Wanagat
 
 ## Overview
 
@@ -71,8 +71,10 @@ STAR-Fusion requires a CTAT genome lib, which includes various data files used i
 #### Download rat reference genome information from Ensembl
 
 ```bash
-wget http://ftp.ensembl.org/pub/current_fasta/rattus_norvegicus/dna/Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz
-wget http://ftp.ensembl.org/pub/current_gtf/rattus_norvegicus/Rattus_norvegicus.Rnor_6.0.104.gtf.gz
+wget http://ftp.ensembl.org/pub/release-104/fasta/rattus_norvegicus/dna/\
+Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz
+wget http://ftp.ensembl.org/pub/release-104/gtf/rattus_norvegicus/\
+Rattus_norvegicus.Rnor_6.0.104.gtf.gz
 ```
 
 #### Build a rat-specific Dfam file
@@ -117,8 +119,10 @@ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 #### Download human reference genome information from Ensembl
 
 ```bash
-wget http://ftp.ensembl.org/pub/current_fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
-wget http://ftp.ensembl.org/pub/current_gtf/homo_sapiens/Homo_sapiens.GRCh38.104.gtf.gz
+wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/\
+Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+wget http://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/\
+Homo_sapiens.GRCh38.104.gtf.gz
 ```
 
 #### Build a human-specific Dfam file
@@ -165,7 +169,9 @@ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 #### Download the rat aging muscle data
 
 ```bash
-./scripts/run-fasterq-dump.sh SRA-metadata/rat-aging-muscle/SRR_Acc_List.txt rat-aging-muscle-data
+./scripts/run-fasterq-dump.sh \
+SRA-metadata/rat-aging-muscle/SRR_Acc_List.txt \
+rat-aging-muscle-data
 ```
 
 #### Add fragment counts to the rat aging muscle data
@@ -177,19 +183,24 @@ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 #### Run STAR-Fusion on the rat aging muscle data
 
 ```bash
-./scripts/run-star-fusion.sh -i rat-aging-muscle-data -o rat-aging-muscle-data-results -r rat_ctat_genome_lib_build_dir_custom_MT
+./scripts/run-star-fusion.sh -i rat-aging-muscle-data \
+-o rat-aging-muscle-data-results \
+-r rat_ctat_genome_lib_build_dir_custom_MT
 ```
 
 #### Merge the STAR-Fusion results for the rat aging muscle data
 
 ```bash
-./scripts/merge_star-fusion-results.sh rat-aging-muscle-data-results star-fusion-results/rat-aging-muscle
+./scripts/merge_star-fusion-results.sh \
+rat-aging-muscle-data-results \
+star-fusion-results/rat-aging-muscle
 ```
 
 #### Add fragment counts to the rat aging muscle STAR-Fusion results
 
 ```bash
-cp rat-aging-muscle-data/fragment_counts.txt star-fusion-results/rat-aging-muscle
+cp rat-aging-muscle-data/fragment_counts.txt \
+star-fusion-results/rat-aging-muscle
 ```
 
 #### Compare the STAR-Fusion results among samples for the rat aging muscle data
@@ -203,7 +214,9 @@ Rscript scripts/summarize-rat-aging-muscle.R
 #### Download the human Twinkle mutation data
 
 ```bash
-./scripts/run-fasterq-dump.sh SRA-metadata/human-Twinkle-mutation/SRR_Acc_List.txt human-Twinkle-mutation-data
+./scripts/run-fasterq-dump.sh \
+SRA-metadata/human-Twinkle-mutation/SRR_Acc_List.txt \
+human-Twinkle-mutation-data
 ```
 
 #### Add fragment counts to the human Twinkle mutation data
@@ -215,19 +228,25 @@ Rscript scripts/summarize-rat-aging-muscle.R
 #### Run STAR-Fusion on the human Twinkle mutation data
 
 ```bash
-./scripts/run-star-fusion.sh -i human-Twinkle-mutation-data -o human-Twinkle-mutation-data-results -r human_ctat_genome_lib_build_dir_custom_MT
+./scripts/run-star-fusion.sh \
+-i human-Twinkle-mutation-data \
+-o human-Twinkle-mutation-data-results \
+-r human_ctat_genome_lib_build_dir_custom_MT
 ```
 
 #### Merge the STAR-Fusion results for the human Twinkle mutation data
 
 ```bash
-./scripts/merge_star-fusion-results.sh human-Twinkle-mutation-data-results star-fusion-results/human-Twinkle-mutation
+./scripts/merge_star-fusion-results.sh \
+human-Twinkle-mutation-data-results \
+star-fusion-results/human-Twinkle-mutation
 ```
 
 #### Add fragment counts to the human Twinkle mutation STAR-Fusion results
 
 ```bash
-cp human-Twinkle-mutation-data/fragment_counts.txt star-fusion-results/human-Twinkle-mutation
+cp human-Twinkle-mutation-data/fragment_counts.txt \
+star-fusion-results/human-Twinkle-mutation
 ```
 
 #### Compare the STAR-Fusion results among samples for the Twinkle mutation data
@@ -241,7 +260,9 @@ Rscript scripts/summarize-human-Twinkle-mutation.R
 #### Download the human aging muscle data
 
 ```bash
-./scripts/run-fasterq-dump.sh SRA-metadata/human-aging-muscle/SRR_Acc_List.txt human-aging-muscle-data
+./scripts/run-fasterq-dump.sh \
+SRA-metadata/human-aging-muscle/SRR_Acc_List.txt \
+human-aging-muscle-data
 ```
 
 #### Add fragment counts to the human aging muscle data
@@ -253,19 +274,25 @@ Rscript scripts/summarize-human-Twinkle-mutation.R
 #### Run STAR-Fusion on the human aging muscle data
 
 ```bash
-./scripts/run-star-fusion.sh -i human-aging-muscle-data -o human-aging-muscle-data-results -r human_ctat_genome_lib_build_dir_custom_MT
+./scripts/run-star-fusion.sh \
+-i human-aging-muscle-data \
+-o human-aging-muscle-data-results \
+-r human_ctat_genome_lib_build_dir_custom_MT
 ```
 
 #### Merge the STAR-Fusion results for the human aging muscle data
 
 ```bash
-./scripts/merge_star-fusion-results.sh human-aging-muscle-data-results star-fusion-results/human-aging-muscle
+./scripts/merge_star-fusion-results.sh \
+human-aging-muscle-data-results \
+star-fusion-results/human-aging-muscle
 ```
 
 #### Add fragment counts to the human aging muscle STAR-Fusion results
 
 ```bash
-cp human-aging-muscle-data/fragment_counts.txt star-fusion-results/human-aging-muscle
+cp human-aging-muscle-data/fragment_counts.txt \
+star-fusion-results/human-aging-muscle
 ```
 
 #### Compare the STAR-Fusion results among samples for the human aging muscle data
@@ -279,7 +306,9 @@ Rscript scripts/summarize-human-aging-muscle.R
 #### Download the human aging brain data
 
 ```bash
-./scripts/run-fasterq-dump.sh SRA-metadata/human-aging-brain/SRR_Acc_List.txt human-aging-brain-data
+./scripts/run-fasterq-dump.sh \
+SRA-metadata/human-aging-brain/SRR_Acc_List.txt \
+human-aging-brain-data
 ```
 
 #### Add fragment counts to the human aging brain data
@@ -291,19 +320,25 @@ Rscript scripts/summarize-human-aging-muscle.R
 #### Run STAR-Fusion on the human aging brain data
 
 ```bash
-./scripts/run-star-fusion.sh -i human-aging-brain-data -o human-aging-brain-data-results -r human_ctat_genome_lib_build_dir_custom_MT
+./scripts/run-star-fusion.sh \
+-i human-aging-brain-data \
+-o human-aging-brain-data-results \
+-r human_ctat_genome_lib_build_dir_custom_MT
 ```
 
 #### Merge the STAR-Fusion results for the human aging brain data
 
 ```bash
-./scripts/merge_star-fusion-results.sh human-aging-brain-data-results star-fusion-results/human-aging-brain
+./scripts/merge_star-fusion-results.sh \
+human-aging-brain-data-results \
+star-fusion-results/human-aging-brain
 ```
 
 #### Add fragment counts to the human aging brain STAR-Fusion results
 
 ```bash
-cp human-aging-brain-data/fragment_counts.txt star-fusion-results/human-aging-brain
+cp human-aging-brain-data/fragment_counts.txt \
+star-fusion-results/human-aging-brain
 ```
 
 #### Compare the STAR-Fusion results among samples for the human aging brain data
