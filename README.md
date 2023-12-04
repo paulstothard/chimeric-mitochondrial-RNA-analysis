@@ -4,11 +4,13 @@ This repository describes the methods used to characterize chimeric mitochondria
 
 ## Overview
 
-STAR-Fusion was used to identify candidate fusion transcripts in RNA-Seq datasets, and an R script was used to parse the STAR-fusion output files and to enumerate mitochondrial gene fusions within each sample. Excel files and PCA plots were generated to summarize the results.
+STAR-Fusion is used to identify candidate fusion transcripts in RNA-Seq datasets, and R scripts are used to parse the STAR-fusion output files and to enumerate mitochondrial gene fusions within each sample. Excel files and PCA plots are generated to summarize the results.
+
+For each sample the STAR-Fusion results are processed as follows. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The tables are written to a single Excel file as separate sheets. PCA plots with and without sample labels and loadings are produced from the FFPM table.
 
 ## RNA-Seq datasets
 
-Four datasets were studied:
+Four datasets are analyzed in this study:
 
 | Name                   | NCBI BioProject                                                       |
 |------------------------|-----------------------------------------------------------------------|
@@ -37,9 +39,8 @@ The h5py Python package is used to build a Dfam file for STAR-Fusion. It can be 
 conda install -c anaconda h5py
 ```
 
-The R script used to summarize results requires the following packages:
+The R scripts used to summarize results require the following packages:
 
-* argparser
 * data.table
 * ggfortify
 * ggplot2
@@ -185,10 +186,8 @@ cp rat-aging-muscle-data/fragment_counts.txt star-fusion-results/rat-aging-muscl
 
 #### Compare the STAR-Fusion results among samples for the rat aging muscle data
 
-need to fix this **pca_color_by**
-
 ```bash
-Rscript scripts/compare-star-fusion-results.R --input_folder star-fusion-results/rat-aging-muscle --metadata_folder SRA-metadata/rat-aging-muscle  --output_folder star-fusion-results-summary/rat-aging-muscle --pca_color_by genotype
+Rscript scripts/summarize-rat-aging-muscle.R
 ```
 
 ### Analyze the human Twinkle mutation dataset
@@ -221,7 +220,7 @@ cp human-Twinkle-mutation-data/fragment_counts.txt star-fusion-results/human-Twi
 #### Compare the STAR-Fusion results among samples for the Twinkle mutation data
 
 ```bash
-Rscript scripts/compare-star-fusion-results.R --input_folder star-fusion-results/human-Twinkle-mutation --metadata_folder SRA-metadata/human-Twinkle-mutation  --output_folder star-fusion-results-summary/human-Twinkle-mutation --pca_color_by genotype
+Rscript scripts/summarize-human-Twinkle-mutation.R
 ```
 
 ### Analyze the human aging muscle dataset
@@ -254,5 +253,38 @@ cp human-aging-muscle-data/fragment_counts.txt star-fusion-results/human-aging-m
 #### Compare the STAR-Fusion results among samples for the human aging muscle data
 
 ```bash
-Rscript scripts/compare-star-fusion-results.R --input_folder star-fusion-results/human-aging-muscle --metadata_folder SRA-metadata/human-aging-muscle  --output_folder star-fusion-results-summary/human-aging-muscle --pca_color_by genotype
+Rscript scripts/human-aging-muscle.R
+```
+
+### Analyze the human aging brain dataset
+
+#### Download the human aging brain data
+
+```bash
+./scripts/run-fasterq-dump.sh SRA-metadata/human-aging-brain/SRR_Acc_List.txt human-aging-brain-data
+```
+
+#### Add fragment counts to the human aging brain data
+
+```bash
+./scripts/count-fragments.sh human-aging-brain-data
+```
+
+#### Run STAR-Fusion on the human aging brain data
+
+```bash
+./scripts/run-star-fusion.sh -i human-aging-brain-data -o human-aging-brain-data-results -r human_ctat_genome_lib_build_dir_custom_MT
+```
+
+#### Merge the STAR-Fusion results for the human aging brain data
+
+```bash
+./scripts/merge_star-fusion-results.sh human-aging-brain-data-results star-fusion-results/human-aging-brain
+cp human-aging-brain-data/fragment_counts.txt star-fusion-results/human-aging-brain
+```
+
+#### Compare the STAR-Fusion results among samples for the human aging brain data
+
+```bash
+Rscript scripts/human-aging-brain.R
 ```
