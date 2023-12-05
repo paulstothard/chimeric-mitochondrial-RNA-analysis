@@ -5,3 +5,4 @@
 *.code-workspace
 .vscode/
 star-fusion-results/
+deploy/
