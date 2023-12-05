@@ -1,6 +1,6 @@
 # chimeric-mitochondrial-RNA-analysis
 
-This repository describes the methods used to characterize chimeric mitochondrial RNA transcripts in RNA-Seq datasets. The results of this work are included in the following publication:
+This repository contains the code and methods used to characterize chimeric mitochondrial RNA transcripts in RNA-Seq datasets. The results of this work are included in the following publication:
 
 > Chimeric mitochondrial RNA transcripts in mitochondrial genetic diseases and aging.
 > 
@@ -10,11 +10,21 @@ This repository describes the methods used to characterize chimeric mitochondria
 
 STAR-Fusion is used to identify candidate fusion transcripts. Custom GTF files are used with STAR-Fusion in order to convey that the MT-ATP8 and MT-ATP6 genes and MT-ND4l and Mt-ND4 genes are encoded within single transcripts that do not represent chimeric mitochondrial RNA. The custom GTF files are available in the `custom-GTFs` directory.
 
-For each dataset an R script is used to parse the STAR-fusion output files and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
+For each dataset R code is used to parse the STAR-fusion output files and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
+
+Dataset download, STAR-Fusion analysis, and R analysis are performed using scripts provided in the `scripts` directory. Single-end and paired-end datasets are supported. The scripts are designed to be run from the top-level directory of this repository. The output of the analysis for each dataset is written to a directory within the `star-fusion-results` directory. Due to the large size of the STAR-Fusion output files, the `star-fusion-results` directory is not included in this repository.
 
 The final output of the analysis for each dataset is provided in the `star-fusion-results-summary` directory.
 
 The detailed analysis procedure is described below and can be used to reproduce the results.
+
+To download the repository:
+
+```bash
+git clone git@github.com:paulstothard/chimeric-mitochondrial-RNA-analysis
+```
+
+or download the [latest release](https://github.com/paulstothard/chimeric-mitochondrial-RNA-analysis/releases/).
 
 ## RNA-Seq datasets
 
