@@ -2,7 +2,8 @@
 
 This repository describes the methods used to characterize chimeric mitochondrial RNA transcripts in RNA-Seq datasets. The results of this work are included in the following publication:
 
-> Chimeric mitochondrial RNA transcripts in mitochondrial genetic diseases and aging
+> Chimeric mitochondrial RNA transcripts in mitochondrial genetic diseases and aging.
+> 
 > Amy R. Vandiver, Allen Herbst, Paul Stothard, Jonathan Wanagat
 
 ## Overview
