@@ -16,11 +16,11 @@ or download the [latest release](https://github.com/paulstothard/chimeric-mitoch
 
 ## Overview
 
-STAR-Fusion is used to identify candidate fusion transcripts in RNA-Seq datasets downloaded from NCBI. Custom GTF files are used with STAR-Fusion in order to convey that the MT-ATP8 and MT-ATP6 genes and MT-ND4l and Mt-ND4 genes are encoded within single transcripts that do not represent chimeric mitochondrial RNA.
-
-R code is used to parse the STAR-fusion output files for each dataset and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
+The scripts and procedures in this repository download RNA-Seq datasets from SRA and use STAR-Fusion to identify candidate fusion transcripts. R code is used to parse the STAR-fusion output files for each dataset and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The raw counts and FFPM tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
 
 Dataset download, STAR-Fusion analysis, and R analysis are performed using scripts provided in the `scripts` directory. Single-end and paired-end datasets are supported. The scripts are designed to be run from the top-level directory of this repository. The output of the analysis for each dataset is written to a directory within the `star-fusion-results` directory. Due to the large size of the STAR-Fusion output files, the `star-fusion-results` directory is not included in this repository. The Excel files containing the raw counts and FFPM tables and the PCA plots in PDF format are included in the `star-fusion-results-summary` folder.
+
+Custom GTF files are used with STAR-Fusion in order to convey that the MT-ATP8 and MT-ATP6 genes and MT-ND4l and Mt-ND4 genes are encoded within single transcripts that do not represent chimeric mitochondrial RNA.
 
 The detailed analysis procedure is described below and can be used to reproduce the results.
 
@@ -79,11 +79,11 @@ $ Rscript scripts/install-packages.R
 
 ## Analysis procedure
 
-### Prepare STAR-Fusion reference files
+### Preparing STAR-Fusion reference files
 
 STAR-Fusion requires a CTAT genome lib, which includes various data files used in fusion-finding. Separate CTAT genome libs will be created for the rat and human datasets.
 
-#### Download rat reference genome information from Ensembl
+#### Downloading rat reference genome information from Ensembl
 
 ```console
 $ wget http://ftp.ensembl.org/pub/release-104/fasta/rattus_norvegicus/dna/\
@@ -92,7 +92,7 @@ $ wget http://ftp.ensembl.org/pub/release-104/gtf/rattus_norvegicus/\
 Rattus_norvegicus.Rnor_6.0.104.gtf.gz
 ```
 
-#### Build a rat-specific Dfam file
+#### Building a rat-specific Dfam file
 
 ```console
 $ wget https://www.dfam.org/releases/Dfam_3.3/families/Dfam.h5.gz
@@ -101,14 +101,14 @@ $ ./scripts/famdb.py -i Dfam.h5 lineage -a Rattus
 $ ./scripts/famdb.py -i Dfam.h5 families -f hmm -a Rattus > rat_dfam.hmm
 ```
 
-#### Prepare the rat Dfam file for STAR-Fusion
+#### Preparing the rat Dfam file for STAR-Fusion
 
 ```console
 $ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 hmmpress /data/rat_dfam.hmm
 ```
 
-#### Build the rat CTAT genome lib
+#### Building the rat CTAT genome lib
 
 The custom GTF file is available in the `custom-GTFs` directory.
 
@@ -131,7 +131,7 @@ $ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 --output_dir /data/rat_ctat_genome_lib_build_dir_custom_MT
 ```
 
-#### Download human reference genome information from Ensembl
+#### Downloading human reference genome information from Ensembl
 
 ```console
 $ wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/\
@@ -140,7 +140,7 @@ $ wget http://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/\
 Homo_sapiens.GRCh38.104.gtf.gz
 ```
 
-#### Build a human-specific Dfam file
+#### Building a human-specific Dfam file
 
 ```console
 $ wget https://www.dfam.org/releases/Dfam_3.3/families/Dfam.h5.gz
@@ -149,14 +149,14 @@ $ ./scripts/famdb.py -i Dfam.h5 lineage -a human
 $ ./scripts/famdb.py -i Dfam.h5 families -f hmm -a human > human_dfam.hmm
 ```
 
-#### Prepare the human Dfam file for STAR-Fusion
+#### Preparing the human Dfam file for STAR-Fusion
 
 ```console
 $ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 hmmpress /data/human_dfam.hmm
 ```
 
-#### Build the human CTAT genome lib
+#### Building the human CTAT genome lib
 
 The custom GTF file is available in the `custom-GTFs` directory.
 
@@ -179,9 +179,9 @@ $ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 --output_dir /data/human_ctat_genome_lib_build_dir_custom_MT
 ```
 
-### Analyze the rat aging muscle dataset
+### Analyzing the rat aging muscle dataset
 
-#### Download the rat aging muscle data
+#### Downloading the rat aging muscle data
 
 ```console
 $ ./scripts/run-fasterq-dump.sh \
@@ -189,13 +189,13 @@ SRA-metadata/rat-aging-muscle/SRR_Acc_List.txt \
 rat-aging-muscle-data
 ```
 
-#### Add fragment counts to the rat aging muscle data
+#### Adding fragment counts to the rat aging muscle data
 
 ```console
 $ ./scripts/count-fragments.sh rat-aging-muscle-data
 ```
 
-#### Run STAR-Fusion on the rat aging muscle data
+#### Running STAR-Fusion on the rat aging muscle data
 
 ```console
 $ ./scripts/run-star-fusion.sh -i rat-aging-muscle-data \
@@ -203,7 +203,7 @@ $ ./scripts/run-star-fusion.sh -i rat-aging-muscle-data \
 -r rat_ctat_genome_lib_build_dir_custom_MT
 ```
 
-#### Merge the STAR-Fusion results for the rat aging muscle data
+#### Merging the STAR-Fusion results for the rat aging muscle data
 
 ```console
 $ ./scripts/merge_star-fusion-results.sh \
@@ -211,22 +211,24 @@ rat-aging-muscle-data-results \
 star-fusion-results/rat-aging-muscle
 ```
 
-#### Add fragment counts to the rat aging muscle STAR-Fusion results
+#### Adding fragment counts to the rat aging muscle STAR-Fusion results
 
 ```console
 $ cp rat-aging-muscle-data/fragment_counts.txt \
 star-fusion-results/rat-aging-muscle
 ```
 
-#### Compare the STAR-Fusion results among samples for the rat aging muscle data
+#### Comparing the STAR-Fusion results among samples for the rat aging muscle data
 
 ```console
 $ Rscript scripts/summarize-rat-aging-muscle.R
 ```
 
-### Analyze the human Twinkle mutation dataset
+The resulting Excel file and PDF plots are available in the `star-fusion-results-summary/rat-aging-muscle` directory.
 
-#### Download the human Twinkle mutation data
+### Analyzing the human Twinkle mutation dataset
+
+#### Downloading the human Twinkle mutation data
 
 ```console
 $ ./scripts/run-fasterq-dump.sh \
@@ -234,13 +236,13 @@ SRA-metadata/human-Twinkle-mutation/SRR_Acc_List.txt \
 human-Twinkle-mutation-data
 ```
 
-#### Add fragment counts to the human Twinkle mutation data
+#### Adding fragment counts to the human Twinkle mutation data
 
 ```console
 $ ./scripts/count-fragments.sh human-Twinkle-mutation-data
 ```
 
-#### Run STAR-Fusion on the human Twinkle mutation data
+#### Running STAR-Fusion on the human Twinkle mutation data
 
 ```console
 $ ./scripts/run-star-fusion.sh \
@@ -249,7 +251,7 @@ $ ./scripts/run-star-fusion.sh \
 -r human_ctat_genome_lib_build_dir_custom_MT
 ```
 
-#### Merge the STAR-Fusion results for the human Twinkle mutation data
+#### Merging the STAR-Fusion results for the human Twinkle mutation data
 
 ```console
 $ ./scripts/merge_star-fusion-results.sh \
@@ -257,22 +259,24 @@ human-Twinkle-mutation-data-results \
 star-fusion-results/human-Twinkle-mutation
 ```
 
-#### Add fragment counts to the human Twinkle mutation STAR-Fusion results
+#### Adding fragment counts to the human Twinkle mutation STAR-Fusion results
 
 ```console
 $ cp human-Twinkle-mutation-data/fragment_counts.txt \
 star-fusion-results/human-Twinkle-mutation
 ```
 
-#### Compare the STAR-Fusion results among samples for the Twinkle mutation data
+#### Comparing the STAR-Fusion results among samples for the Twinkle mutation data
 
 ```console
 $ Rscript scripts/summarize-human-Twinkle-mutation.R
 ```
 
-### Analyze the human aging muscle dataset
+The resulting Excel file and PDF plots are available in the `star-fusion-results-summary/human-Twinkle-mutation` directory.
 
-#### Download the human aging muscle data
+### Analyzing the human aging muscle dataset
+
+#### Downloading the human aging muscle data
 
 ```console
 $ ./scripts/run-fasterq-dump.sh \
@@ -280,13 +284,13 @@ SRA-metadata/human-aging-muscle/SRR_Acc_List.txt \
 human-aging-muscle-data
 ```
 
-#### Add fragment counts to the human aging muscle data
+#### Adding fragment counts to the human aging muscle data
 
 ```console
 $ ./scripts/count-fragments.sh human-aging-muscle-data
 ```
 
-#### Run STAR-Fusion on the human aging muscle data
+#### Running STAR-Fusion on the human aging muscle data
 
 ```console
 $ ./scripts/run-star-fusion.sh \
@@ -295,7 +299,7 @@ $ ./scripts/run-star-fusion.sh \
 -r human_ctat_genome_lib_build_dir_custom_MT
 ```
 
-#### Merge the STAR-Fusion results for the human aging muscle data
+#### Merging the STAR-Fusion results for the human aging muscle data
 
 ```console
 $ ./scripts/merge_star-fusion-results.sh \
@@ -303,22 +307,24 @@ human-aging-muscle-data-results \
 star-fusion-results/human-aging-muscle
 ```
 
-#### Add fragment counts to the human aging muscle STAR-Fusion results
+#### Adding fragment counts to the human aging muscle STAR-Fusion results
 
 ```console
 $ cp human-aging-muscle-data/fragment_counts.txt \
 star-fusion-results/human-aging-muscle
 ```
 
-#### Compare the STAR-Fusion results among samples for the human aging muscle data
+#### Comparing the STAR-Fusion results among samples for the human aging muscle data
 
 ```console
 $ Rscript scripts/summarize-human-aging-muscle.R
 ```
 
-### Analyze the human aging brain dataset
+The resulting Excel file and PDF plots are available in the `star-fusion-results-summary/human-aging-muscle` directory.
 
-#### Download the human aging brain data
+### Analyzing the human aging brain dataset
+
+#### Downloading the human aging brain data
 
 ```console
 $ ./scripts/run-fasterq-dump.sh \
@@ -326,13 +332,13 @@ SRA-metadata/human-aging-brain/SRR_Acc_List.txt \
 human-aging-brain-data
 ```
 
-#### Add fragment counts to the human aging brain data
+#### Adding fragment counts to the human aging brain data
 
 ```console
 $ ./scripts/count-fragments.sh human-aging-brain-data
 ```
 
-#### Run STAR-Fusion on the human aging brain data
+#### Running STAR-Fusion on the human aging brain data
 
 ```console
 $ ./scripts/run-star-fusion.sh \
@@ -341,7 +347,7 @@ $ ./scripts/run-star-fusion.sh \
 -r human_ctat_genome_lib_build_dir_custom_MT
 ```
 
-#### Merge the STAR-Fusion results for the human aging brain data
+#### Merging the STAR-Fusion results for the human aging brain data
 
 ```console
 $ ./scripts/merge_star-fusion-results.sh \
@@ -349,15 +355,17 @@ human-aging-brain-data-results \
 star-fusion-results/human-aging-brain
 ```
 
-#### Add fragment counts to the human aging brain STAR-Fusion results
+#### Adding fragment counts to the human aging brain STAR-Fusion results
 
 ```console
 $ cp human-aging-brain-data/fragment_counts.txt \
 star-fusion-results/human-aging-brain
 ```
 
-#### Compare the STAR-Fusion results among samples for the human aging brain data
+#### Comparing the STAR-Fusion results among samples for the human aging brain data
 
 ```console
 $ Rscript scripts/human-aging-brain.R
 ```
+
+The resulting Excel file and PDF plots are available in the `star-fusion-results-summary/human-aging-brain` directory.
