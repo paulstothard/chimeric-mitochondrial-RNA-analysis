@@ -41,18 +41,18 @@ library(writexl)
 
 ################################################################################
 # DATASET-SPECIFIC CONFIGURATION
-# TODO: Update the following settings for each new dataset.
+# Update the following settings for each new dataset.
 ################################################################################
 
 # Assign command line arguments to variables for input, metadata, and output
-# TODO: Modify these paths according to your dataset structure
+# Modify these paths according to your dataset structure
 input_folder <- "../star-fusion-results/rat-aging-muscle" # Path to input data
 metadata_folder <- "../SRA-metadata/rat-aging-muscle" # Path to metadata
 output_folder <- "../star-fusion-results-summary/rat-aging-muscle" # Path for output
 pca_color_by <- "Treatment" # Variable for color coding in PCA plot
 
 # Modify this function to perform dataset-specific processing prior to output
-# TODO: Customize the data processing steps for your specific dataset needs
+# Customize the data processing steps for your specific dataset needs
 dataset_specific_processing <- function(df) {
   # Ensure that the input is a data frame
   if (!is.data.frame(df)) {
