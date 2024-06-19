@@ -43,6 +43,7 @@
       - [Add fragment counts to the human aging brain STAR-Fusion results](#add-fragment-counts-to-the-human-aging-brain-star-fusion-results)
       - [Compare the STAR-Fusion results among samples for the human aging brain data](#compare-the-star-fusion-results-among-samples-for-the-human-aging-brain-data)
 
+## Overview
 
 This repository contains the code and methods used to characterize chimeric mitochondrial RNA transcripts in RNA-Seq datasets. The results of this work are included in the following publication:
 
@@ -57,8 +58,6 @@ git clone git@github.com:paulstothard/chimeric-mitochondrial-RNA-analysis
 ```
 
 or download the [latest release](https://github.com/paulstothard/chimeric-mitochondrial-RNA-analysis/releases/).
-
-## Overview
 
 The scripts and procedures in this repository download RNA-Seq datasets from the NCBI SRA and use STAR-Fusion to identify candidate fusion transcripts. R code is used to parse the STAR-fusion output files for each dataset and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The raw counts and FFPM tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
 
