@@ -80,61 +80,32 @@ Four datasets are analyzed in this study:
 
 ## Dependencies
 
-`fasterq-dump` is used to download RNA-Seq data from NCBI. It can be installed using conda:
+Docker is used to run STAR-Fusion and to build the STAR-Fusion reference files.
 
-```bash
-conda install -c bioconda sra-tools
-```
-
-STAR-Fusion version 1.10.0 is used to identify candidate fusion transcripts within RNA-Seq datasets. It can be downloaded as a Docker image:
+To download the STAR-Fusion version 1.10.0 Docker image:
 
 ```bash
 docker pull trinityctat/starfusion:1.10.0
 ```
 
-The h5py Python package is used to build a Dfam file for STAR-Fusion. It can be installed using conda:
+For the other dependencies a Conda environment can be created using the following commands:
 
 ```bash
-conda install -c anaconda h5py
-```
-
-R and the following R packages are used to parse the STAR-Fusion output files and to enumerate mitochondrial gene fusions within each sample:
-
-* data.table
-* ggfortify
-* ggplot2
-* janitor
-* openxlsx
-* tidyverse
-* writexl
-
-R can be installed using conda:
-
-```bash
-conda install -c r r
-```
-
-The R packages can be installed using the supplied `install-packages.R` script:
-
-```bash
-Rscript scripts/install-packages.R
+conda create -n chimeric-mtrna python=3.8
+conda activate chimeric-mtrna
+conda install -y -c bioconda sra-tools
+conda install -y -c anaconda h5py
+conda install -y -c conda-forge r-base r-essentials
+conda install -y -c conda-forge r-data.table r-ggfortify r-ggplot2 r-janitor r-openxlsx r-tidyverse r-writexl
 ```
 
 ## Analysis procedure
 
+The commands below assume that the `scripts`, `SRA-metadata`, and `custom-GTFs` directories from this repository are in the current working directory.
+
 ### Prepare STAR-Fusion reference files
 
 STAR-Fusion requires a CTAT genome lib, which includes various data files used in fusion-finding. Separate CTAT genome libs will be created for the rat and human datasets.
-
-#### Download rat reference genome information from Ensembl
-
-```bash
-wget http://ftp.ensembl.org/pub/release-104/fasta/rattus_norvegicus/dna/\
-Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz
-
-wget http://ftp.ensembl.org/pub/release-104/gtf/rattus_norvegicus/\
-Rattus_norvegicus.Rnor_6.0.104.gtf.gz
-```
 
 #### Build a Dfam file for the rat genome
 
@@ -154,35 +125,29 @@ hmmpress /data/rat_dfam.hmm
 
 #### Build the rat CTAT genome lib
 
-The custom GTF file is available in the `custom-GTFs` directory.
-
-Decompress the rat reference genome and GTF files:
+Download and extract the rat reference genome and GTF files:
 
 ```bash
+wget http://ftp.ensembl.org/pub/release-104/fasta/rattus_norvegicus/dna/\
+Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz
+
+wget http://ftp.ensembl.org/pub/release-104/gtf/rattus_norvegicus/\
+Rattus_norvegicus.Rnor_6.0.104.gtf.gz
+
 gunzip Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz
 gunzip Rattus_norvegicus.Rnor_6.0.104_custom.gtf.gz
 ```
 
-Run the `prep_genome_lib.pl` script, writing the output to the `rat_ctat_genome_lib_build_dir_custom_MT` directory:
+Run the STAR-Fusion `prep_genome_lib.pl` script, writing the output to the `rat_ctat_genome_lib_build_dir_custom_MT` directory:
 
 ```bash
 docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/prep_genome_lib.pl \
 --genome_fa /data/Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa \
---gtf /data/Rattus_norvegicus.Rnor_6.0.104_custom.gtf \
+--gtf /data/custom-GTFs/Rattus_norvegicus.Rnor_6.0.104_custom.gtf \
 --pfam_db current \
 --dfam_db /data/rat_dfam.hmm \
 --output_dir /data/rat_ctat_genome_lib_build_dir_custom_MT
-```
-
-#### Download human reference genome information from Ensembl
-
-```bash
-wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/\
-Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
-
-wget http://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/\
-Homo_sapiens.GRCh38.104.gtf.gz
 ```
 
 #### Build a Dfam file for the human genome
@@ -203,22 +168,26 @@ hmmpress /data/human_dfam.hmm
 
 #### Build the human CTAT genome lib
 
-The custom GTF file is available in the `custom-GTFs` directory.
-
-Decompress the human reference genome and GTF files:
+Download and extract the human reference genome and GTF files:
 
 ```bash
+wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/\
+Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+
+wget http://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/\
+Homo_sapiens.GRCh38.104.gtf.gz
+
 gunzip Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 gunzip Homo_sapiens.GRCh38.104_custom.gtf.gz
 ```
 
-Run the `prep_genome_lib.pl` script, writing the output to the `human_ctat_genome_lib_build_dir_custom_MT` directory:
+Run the STAR-Fusion `prep_genome_lib.pl` script, writing the output to the `human_ctat_genome_lib_build_dir_custom_MT` directory:
 
 ```bash
 docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/prep_genome_lib.pl \
 --genome_fa /data/Homo_sapiens.GRCh38.dna.primary_assembly.fa \
---gtf /data/Homo_sapiens.GRCh38.104_custom.gtf \
+--gtf /data/custom-GTFs/Homo_sapiens.GRCh38.104_custom.gtf \
 --pfam_db current \
 --dfam_db /data/human_dfam.hmm \
 --output_dir /data/human_ctat_genome_lib_build_dir_custom_MT
