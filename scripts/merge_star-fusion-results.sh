@@ -4,7 +4,7 @@
 # Contact: stothard@ualberta.ca
 
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <input_folder> <output_folder>"
+    printf "Usage: %s <input_folder> <output_folder>\n" "$0"
     exit 1
 fi
 
@@ -12,7 +12,7 @@ input_folder="$1"
 output_folder="$2"
 
 if [ ! -d "$input_folder" ]; then
-    echo "Error: Input folder '$input_folder' does not exist."
+    printf "Error: Input folder '%s' does not exist.\n" "$input_folder"
     exit 1
 fi
 
@@ -33,10 +33,10 @@ for subfolder in "$input_folder"/*; do
             if [ -f "${files[$file]}" ]; then
                 cp "${files[$file]}" "$output_folder/${sample}.${file}"
             else
-                echo "Warning: File '$file' not found in '$subfolder'."
+                printf "Warning: File '%s' not found in '%s'.\n" "$file" "$subfolder"
             fi
         done
     fi
 done
 
-echo "Processing complete."
+printf "Processing complete.\n"

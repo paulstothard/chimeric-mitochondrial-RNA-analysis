@@ -4,20 +4,20 @@
 # Contact: stothard@ualberta.ca
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <folder_name>"
+    printf "Usage: %s <folder_name>\n" "$0"
     exit 1
 fi
 
 FOLDER_NAME="$1"
 
 if [ ! -d "$FOLDER_NAME" ]; then
-    echo "Error: Directory '$FOLDER_NAME' does not exist."
+    printf "Error: Directory '%s' does not exist.\n" "$FOLDER_NAME"
     exit 1
 fi
 
 OUTPUT_FILE="${FOLDER_NAME}/fragment_counts.txt"
 
-echo "file,million fragments" > "$OUTPUT_FILE"
+printf "file,million fragments\n" >"$OUTPUT_FILE"
 
 declare -A file_checked
 
@@ -29,20 +29,20 @@ find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | while IFS= read -r file;
     if [[ $fnx =~ _[12].fastq.gz ]]; then
         base_fn="${fn%_?}"
         if [ "${file_checked[$base_fn]}" == "yes" ]; then
-            echo "Skipping file '$fnx' as its pair has been processed."
+            printf "Skipping file '%s' as its pair has been processed.\n" "$fnx"
             continue
         fi
         file_checked[$base_fn]="yes"
     fi
 
-    echo "Processing file '$fnx'"
-    
-    count=$(echo $(zcat "$file" | wc -l) / 4000000 | bc -l)
-    
-    echo "Count for file '$fnx' is '$count'"
-    
-    echo "$fnx,$count" >> "$OUTPUT_FILE"
+    printf "Processing file '%s'\n" "$fnx"
+
+    count=$(printf "%.7f" "$(echo "$(zcat "$file" | wc -l) / 4000000" | bc -l)")
+
+    printf "Count for file '%s' is '%s'\n" "$fnx" "$count"
+
+    printf "%s,%s\n" "$fnx" "$count" >>"$OUTPUT_FILE"
 
 done
 
-echo "Processing complete. Results saved in '$OUTPUT_FILE'."
+printf "Processing complete. Results saved in '%s'.\n" "$OUTPUT_FILE"
