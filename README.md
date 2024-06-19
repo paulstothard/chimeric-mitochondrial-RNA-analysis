@@ -123,17 +123,19 @@ hmmpress /data/rat_dfam.hmm
 
 #### Build the rat CTAT genome lib
 
-Download and extract the rat reference genome and GTF files:
+Download and uncompress the rat reference genome sequence:
 
 ```bash
 wget http://ftp.ensembl.org/pub/release-104/fasta/rattus_norvegicus/dna/\
 Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz
 
-wget http://ftp.ensembl.org/pub/release-104/gtf/rattus_norvegicus/\
-Rattus_norvegicus.Rnor_6.0.104.gtf.gz
-
 gunzip Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz
-gunzip Rattus_norvegicus.Rnor_6.0.104_custom.gtf.gz
+```
+
+Uncompress the custom GTF file:
+
+```bash
+gunzip custom-GTFs/Rattus_norvegicus.Rnor_6.0.104_custom.gtf.gz
 ```
 
 Run the STAR-Fusion `prep_genome_lib.pl` script, writing the output to the `rat_ctat_genome_lib_build_dir_custom_MT` directory:
@@ -166,17 +168,19 @@ hmmpress /data/human_dfam.hmm
 
 #### Build the human CTAT genome lib
 
-Download and extract the human reference genome and GTF files:
+Download and uncompress the human reference genome sequence:
 
 ```bash
 wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/\
 Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 
-wget http://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/\
-Homo_sapiens.GRCh38.104.gtf.gz
-
 gunzip Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
-gunzip Homo_sapiens.GRCh38.104_custom.gtf.gz
+```
+
+Uncompress the custom GTF file:
+
+```bash
+gunzip custom-GTFs/Homo_sapiens.GRCh38.104_custom.gtf.gz
 ```
 
 Run the STAR-Fusion `prep_genome_lib.pl` script, writing the output to the `human_ctat_genome_lib_build_dir_custom_MT` directory:
