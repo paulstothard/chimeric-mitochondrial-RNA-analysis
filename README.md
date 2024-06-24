@@ -141,7 +141,7 @@ gunzip custom-GTFs/Rattus_norvegicus.Rnor_6.0.104_custom.gtf.gz
 Run the STAR-Fusion `prep_genome_lib.pl` script, writing the output to the `rat_ctat_genome_lib_build_dir_custom_MT` directory:
 
 ```bash
-docker run -v "$(pwd)":/data --rm -u "$(id -u)":"$(id -g)" trinityctat/starfusion \
+docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/prep_genome_lib.pl \
 --genome_fa /data/Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa \
 --gtf /data/custom-GTFs/Rattus_norvegicus.Rnor_6.0.104_custom.gtf \
@@ -186,7 +186,7 @@ gunzip custom-GTFs/Homo_sapiens.GRCh38.104_custom.gtf.gz
 Run the STAR-Fusion `prep_genome_lib.pl` script, writing the output to the `human_ctat_genome_lib_build_dir_custom_MT` directory:
 
 ```bash
-docker run -v "$(pwd)":/data --rm -u "$(id -u)":"$(id -g)" trinityctat/starfusion \
+docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/prep_genome_lib.pl \
 --genome_fa /data/Homo_sapiens.GRCh38.dna.primary_assembly.fa \
 --gtf /data/custom-GTFs/Homo_sapiens.GRCh38.104_custom.gtf \
