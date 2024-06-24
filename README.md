@@ -150,6 +150,22 @@ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 --output_dir /data/rat_ctat_genome_lib_build_dir_custom_MT
 ```
 
+Note that the above may create output owned by root. To change the ownership to the current user:
+
+```bash
+sudo chown -R $(id -u):$(id -g) rat_ctat_genome_lib_build_dir_custom_MT
+```
+
+If `sudo` is not available, try the following:
+
+```bash
+HOST_UID=$(id -u)
+HOST_GID=$(id -g)
+
+docker run -v "$(pwd)":/data --rm trinityctat/starfusion /bin/bash -c "\
+chown -R $HOST_UID:$HOST_GID /data/rat_ctat_genome_lib_build_dir_custom_MT"
+```
+
 #### Build a Dfam file for the human genome
 
 ```bash
@@ -193,6 +209,22 @@ docker run -v "$(pwd)":/data --rm trinityctat/starfusion \
 --pfam_db current \
 --dfam_db /data/human_dfam.hmm \
 --output_dir /data/human_ctat_genome_lib_build_dir_custom_MT
+```
+
+Note that the above may create output owned by root. To change the ownership to the current user:
+
+```bash
+sudo chown -R $(id -u):$(id -g) human_ctat_genome_lib_build_dir_custom_MT
+```
+
+If `sudo` is not available, try the following:
+
+```bash
+HOST_UID=$(id -u)
+HOST_GID=$(id -g)
+
+docker run -v "$(pwd)":/data --rm trinityctat/starfusion /bin/bash -c "\
+chown -R $HOST_UID:$HOST_GID /data/human_ctat_genome_lib_build_dir_custom_MT"
 ```
 
 ### Rat aging muscle dataset analysis
