@@ -46,9 +46,9 @@ library(writexl)
 
 # Assign command line arguments to variables for input, metadata, and output
 # Modify these paths according to your dataset structure
-input_folder <- "../star-fusion-results/rat-aging-muscle" # Path to input data
-metadata_folder <- "../SRA-metadata/rat-aging-muscle" # Path to metadata
-output_folder <- "../star-fusion-results-summary/rat-aging-muscle" # Path for output
+input_folder <- "star-fusion-results/rat-aging-muscle" # Path to input data
+metadata_folder <- "SRA-metadata/rat-aging-muscle" # Path to metadata
+output_folder <- "star-fusion-results-summary/rat-aging-muscle" # Path for output
 pca_color_by <- "Treatment" # Variable for color coding in PCA plot
 
 # Modify this function to perform dataset-specific processing prior to output
