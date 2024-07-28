@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
 
 cleanup() {
-  printf "Caught SIGINT signal. Stopping...\n"
-  # Stop the Docker container if it's running
-  docker stop "$(docker ps -q --filter ancestor=trinityctat/starfusion)" 2>/dev/null
+  printf "\nCaught SIGINT signal. Stopping...\n"
+  # Stop all running Docker containers related to trinityctat/starfusion
+  docker ps -q --filter ancestor=trinityctat/starfusion | xargs -r docker stop
   exit 1
 }
 
@@ -45,23 +45,38 @@ mkdir -p "$OUT"
 
 mapfile -t files < <(find "$IN" -name "*.fastq.gz" -type f) # Find all FASTQ files
 
+declare -A paired_files
+
+# Preprocess files to identify pairs and single-end files
 for file in "${files[@]}"; do
-  paired_end=false
-  right_file=""
-  if [[ $file == *_1.fastq.gz ]]; then
-    right_file="${file/_1.fastq.gz/_2.fastq.gz}" # Replace _1 with _2 to get the right file
+  printf "Checking file: %s\n" "$file"
+  base_name=$(basename "$file")
+  dir_name=$(dirname "$file")
+  if [[ $base_name == *_1.fastq.gz ]]; then
+    right_file="${dir_name}/${base_name/_1.fastq.gz/_2.fastq.gz}"
     if [ -f "$right_file" ]; then
-      paired_end=true
-      printf "Processing paired-end pair: '%s' and '%s'\n" "$(basename -- "$file")" "$(basename -- "$right_file")"
+      printf "Identified paired-end files: '%s' and '%s'\n" "$(basename -- "$file")" "$(basename -- "$right_file")"
+      paired_files["$file"]="$right_file"
+    else
+      printf "Right file not found for '%s'. Marking as single-end.\n" "$(basename -- "$file")"
+      paired_files["$file"]=""
     fi
+  elif [[ $base_name == *_2.fastq.gz ]]; then
+    left_file="${dir_name}/${base_name/_2.fastq.gz/_1.fastq.gz}"
+    if [ ! -f "$left_file" ]; then
+      printf "Orphaned _2.fastq.gz file: '%s'. Skipping.\n" "$base_name"
+    fi
+  else
+    printf "Identified single-end file: '%s'\n" "$base_name"
+    paired_files["$file"]=""
   fi
+done
 
-  if [[ $paired_end = false && $file != *_2.fastq.gz ]]; then
-    printf "Processing single-end file: '%s'\n" "$(basename -- "$file")"
-  fi
-
-  fnx=$(basename -- "$file")
-  fn=$(printf "%s" "$fnx" | cut -f 1 -d '.') # Extract the common part of the filename
+# Process paired-end and single-end files
+for left_file in "${!paired_files[@]}"; do
+  right_file=${paired_files[$left_file]}
+  fnx=$(basename -- "$left_file")
+  fn=$(printf "%s" "$fnx" | cut -f 1 -d '.' | cut -f 1 -d '_') # Extract the common part of the filename for paired-end, dot for single-end
 
   if [ -d "${OUT}/${fn}" ]; then
     printf "Output already exists for '%s'\n" "$fnx"
@@ -71,27 +86,26 @@ for file in "${files[@]}"; do
 
   mkdir "${OUT}/${fn}"
 
-  if [ "$paired_end" = true ]; then
-    # Paired-end specific Docker command
+  if [ -n "$right_file" ]; then
+    printf "Processing paired-end files: %s and %s\n" "$fnx" "$(basename -- "$right_file")"
     docker run -v "$(pwd)":/data --rm -u "$(id -u)":"$(id -g)" trinityctat/starfusion \
       /usr/local/src/STAR-Fusion/STAR-Fusion \
-      --left_fq /data/"${IN}"/"${fnx}" \
-      --right_fq /data/"${IN}"/"$(basename -- "$right_file")" \
+      --left_fq /data/"${left_file}" \
+      --right_fq /data/"${right_file}" \
       --genome_lib_dir /data/"${REF}" \
       --no_remove_dups \
       --min_FFPM 0 \
       --CPU "$CPU_COUNT" \
-      -O /data/"${OUT}"/"${fn}" | tee -a "${OUT}"/"${fn}"/redirect_log.txt
+      -O /data/"${OUT}/${fn}" | tee -a "${OUT}/${fn}/redirect_log.txt"
   else
-    # Single-end specific Docker command
+    printf "Processing single-end file: %s\n" "$fnx"
     docker run -v "$(pwd)":/data --rm -u "$(id -u)":"$(id -g)" trinityctat/starfusion \
       /usr/local/src/STAR-Fusion/STAR-Fusion \
-      --left_fq /data/"${IN}"/"${fnx}" \
+      --left_fq /data/"${left_file}" \
       --genome_lib_dir /data/"${REF}" \
       --no_remove_dups \
       --min_FFPM 0 \
       --CPU "$CPU_COUNT" \
-      -O /data/"${OUT}"/"${fn}" | tee -a "${OUT}"/"${fn}"/redirect_log.txt
+      -O /data/"${OUT}/${fn}" | tee -a "${OUT}/${fn}/redirect_log.txt"
   fi
-
 done

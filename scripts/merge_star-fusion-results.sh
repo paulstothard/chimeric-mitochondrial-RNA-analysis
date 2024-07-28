@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
