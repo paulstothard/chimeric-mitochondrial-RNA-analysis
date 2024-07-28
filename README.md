@@ -246,7 +246,8 @@ rat-aging-muscle-data
 #### Run STAR-Fusion on the rat aging muscle data
 
 ```bash
-./scripts/run-star-fusion.sh -i rat-aging-muscle-data \
+./scripts/run-star-fusion.sh \
+-i rat-aging-muscle-data \
 -o rat-aging-muscle-data-results \
 -r rat_ctat_genome_lib_build_dir_custom_MT
 ```
