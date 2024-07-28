@@ -63,9 +63,9 @@ dataset_specific_processing <- function(df) {
   # Example: df <- df %>% mutate(new_column = existing_column * 2)
   df <- df %>%
     rename(Genotype = genotype)
-  
+
   df$Genotype <- sub("^(.)", "\\U\\1", df$Genotype, perl = TRUE)
-  
+
   df <- subset(df, time == "4 months")
 
   # Return the (possibly modified) data frame
@@ -166,13 +166,13 @@ final_fusion_counts_with_metadata <- dataset_specific_processing(final_fusion_co
 if ("million fragments" %in% colnames(final_fusion_counts_with_metadata)) {
   # Get the index of the 'million fragments' column
   index_million_fragments <- which(colnames(final_fusion_counts_with_metadata) == "million fragments")
-  
+
   # Extract the names of all columns after 'million fragments'
   columns_after_million_fragments <- colnames(final_fusion_counts_with_metadata)[(index_million_fragments + 1):ncol(final_fusion_counts_with_metadata)]
-  
+
   # Check if all these column names start with 'MT-' (case-insensitive)
   all_start_with_MT <- all(grepl("^MT-", columns_after_million_fragments, ignore.case = TRUE))
-  
+
   if (!all_start_with_MT) {
     stop("'million fragments' column exists but not all subsequent columns start with 'MT-'.")
   }
@@ -241,27 +241,27 @@ plot_height <- 23.35 / (2.54 * 2)
 generate_and_save_plot <- function(file_name, label, shape, loadings, loadings_label) {
   # Close any previously open graphics devices
   graphics.off()
-  
+
   # Construct the full path for the PDF file
   pdf_path <- file.path(output_folder, file_name)
-  
+
   # Check if the output folder exists and is writable
   if (!dir.exists(output_folder) || !file.access(output_folder, 2) == 0) {
     stop("Output folder does not exist or is not writable")
   }
-  
+
   # Open a new PDF device
   pdf(file = pdf_path, width = plot_width, height = plot_height)
-  
+
   # Create the plot and use print() to render it to the file
   plot_to_print <- autoplot(pca_result,
-                            data = final_fusion_ffpm, colour = pca_color_by,
-                            label = label, shape = shape, loadings = loadings,
-                            loadings.label = loadings_label, loadings.label.size = 2
+    data = final_fusion_ffpm, colour = pca_color_by,
+    label = label, shape = shape, loadings = loadings,
+    loadings.label = loadings_label, loadings.label.size = 2
   ) +
     theme_classic(base_size = 12)
   print(plot_to_print)
-  
+
   # Close the PDF device
   invisible(dev.off())
 }
