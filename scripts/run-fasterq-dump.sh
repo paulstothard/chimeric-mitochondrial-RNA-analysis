@@ -3,8 +3,8 @@
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
 
-if [ "$#" -ne 2 ]; then
-    printf "Usage: %s <accession_list_file> <output_folder>\n" "$0"
+if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+    printf "Usage: %s <accession_list_file> <output_folder> [--force]\n" "$0"
     exit 1
 fi
 
@@ -22,10 +22,25 @@ fi
 
 ACC_FILE="$1"
 OUTPUT_FOLDER="$2"
+FORCE=false
+
+# Check for --force option
+if [ "$#" -eq 3 ] && [ "$3" == "--force" ]; then
+    FORCE=true
+fi
 
 mkdir -p "$OUTPUT_FOLDER"
 
 while read -r acc_num; do
+    paired_compressed_1="${OUTPUT_FOLDER}/${acc_num}_1.fastq.gz"
+    paired_compressed_2="${OUTPUT_FOLDER}/${acc_num}_2.fastq.gz"
+    single_compressed="${OUTPUT_FOLDER}/${acc_num}.fastq.gz"
+
+    if [ "$FORCE" = false ] && { [ -f "$paired_compressed_1" ] || [ -f "$single_compressed" ]; }; then
+        printf "Skipping %s as compressed output already exists.\n" "$acc_num"
+        continue
+    fi
+
     fasterq-dump "$acc_num" -p -O "$OUTPUT_FOLDER"
 
     # Check if paired-end files exist
