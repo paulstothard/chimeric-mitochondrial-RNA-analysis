@@ -38,19 +38,27 @@ PROCESSED_FILE="${FOLDER_NAME}/processed_files.txt"
 
 # Initialize output files
 printf "file,million fragments\n" >"$OUTPUT_FILE"
->"$PROCESSED_FILE" # Empty the processed files list
+: >"$PROCESSED_FILE" # Empty the processed files list
 
 process_file() {
     file="$1"
     fnx=$(basename -- "$file")
     fn="${fnx%.*.*}"
 
-    # Check if this file is part of a pair (e.g., *_1.fastq.gz or *_2.fastq.gz)
+    # Handle paired-end files (e.g., *_1.fastq.gz or *_2.fastq.gz)
     if [[ $fnx =~ _[12].fastq.gz ]]; then
         base_fn="${fn%_?}"
         # Check if the pair has already been processed
         if grep -q "^$base_fn\$" "$PROCESSED_FILE"; then
             printf "Skipping file '%s' as its pair has been processed.\n" "$fnx"
+            return
+        fi
+        echo "$base_fn" >>"$PROCESSED_FILE"
+    else
+        # For single-end files or files that do not match the paired-end pattern
+        base_fn="$fn"
+        if grep -q "^$base_fn\$" "$PROCESSED_FILE"; then
+            printf "Skipping file '%s' as it has already been processed.\n" "$fnx"
             return
         fi
         echo "$base_fn" >>"$PROCESSED_FILE"
