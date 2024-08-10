@@ -34,10 +34,11 @@ if [ ! -d "$FOLDER_NAME" ]; then
 fi
 
 OUTPUT_FILE="${FOLDER_NAME}/fragment_counts.txt"
+PROCESSED_FILE="${FOLDER_NAME}/processed_files.txt"
 
+# Initialize output files
 printf "file,million fragments\n" >"$OUTPUT_FILE"
-
-declare -A file_checked
+>"$PROCESSED_FILE" # Empty the processed files list
 
 process_file() {
     file="$1"
@@ -47,11 +48,12 @@ process_file() {
     # Check if this file is part of a pair (e.g., *_1.fastq.gz or *_2.fastq.gz)
     if [[ $fnx =~ _[12].fastq.gz ]]; then
         base_fn="${fn%_?}"
-        if [ "${file_checked[$base_fn]}" == "yes" ]; then
+        # Check if the pair has already been processed
+        if grep -q "^$base_fn\$" "$PROCESSED_FILE"; then
             printf "Skipping file '%s' as its pair has been processed.\n" "$fnx"
             return
         fi
-        file_checked[$base_fn]="yes"
+        echo "$base_fn" >>"$PROCESSED_FILE"
     fi
 
     printf "Processing file '%s'\n" "$fnx"
@@ -65,7 +67,7 @@ process_file() {
 
 export -f process_file
 export OUTPUT_FILE
-export -A file_checked
+export PROCESSED_FILE
 
 find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | parallel -j "$THREADS" process_file
 
