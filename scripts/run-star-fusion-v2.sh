@@ -116,8 +116,8 @@ for left_file in "${!paired_files[@]}"; do
     --runThreadN "$CPU_COUNT" \
     --quantMode GeneCounts | tee -a "${OUT}/${fn}/STAR_redirect_log.txt"
 
-  # Filter the Chimeric.out.junction file for MT junctions and keep the header
-  awk 'NR==1 || (($1 == "MT" || $1 == "mt") && ($4 == "MT" || $4 == "mt"))' "${OUT}/${fn}/Chimeric.out.junction" >"${OUT}/${fn}/filtered_Chimeric.out.junction"
+  # Filter the Chimeric.out.junction file for MT junctions and keep the header and comments
+  awk '/^#/ || (NR==1 || (($1 == "MT" || $1 == "mt") && ($4 == "MT" || $4 == "mt")))' "${OUT}/${fn}/Chimeric.out.junction" > "${OUT}/${fn}/filtered_Chimeric.out.junction"
 
   # Run STAR-Fusion using the filtered Chimeric.out.junction file in the same output folder
   docker run -v "$(pwd)":/data --rm -u "$(id -u)":"$(id -g)" trinityctat/starfusion \
