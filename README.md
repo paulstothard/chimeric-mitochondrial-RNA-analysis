@@ -99,7 +99,7 @@ conda install -y -c conda-forge r-data.table r-ggfortify r-ggplot2 r-janitor r-o
 
 ## Analysis procedure
 
-The commands below assume that the `scripts`, `SRA-metadata`, and `custom-GTFs` directories from this repository are in the current working directory.
+The commands below assume that the `scripts`, `metadata`, and `custom-GTFs` directories from this repository are in the current working directory.
 
 ### Prepare STAR-Fusion reference files
 
@@ -233,7 +233,7 @@ chown -R $HOST_UID:$HOST_GID /data/human_ctat_genome_lib_build_dir_custom_MT"
 
 ```bash
 ./scripts/run-fasterq-dump.sh \
-SRA-metadata/rat-aging-muscle/SRR_Acc_List.txt \
+metadata/rat-aging-muscle/SRR_Acc_List.txt \
 rat-aging-muscle-data
 ```
 
@@ -281,7 +281,7 @@ The resulting Excel file and PDF plots are available in the `star-fusion-results
 
 ```bash
 ./scripts/run-fasterq-dump.sh \
-SRA-metadata/human-Twinkle-mutation/SRR_Acc_List.txt \
+metadata/human-Twinkle-mutation/SRR_Acc_List.txt \
 human-Twinkle-mutation-data
 ```
 
@@ -329,7 +329,7 @@ The resulting Excel file and PDF plots are available in the `star-fusion-results
 
 ```bash
 ./scripts/run-fasterq-dump.sh \
-SRA-metadata/human-aging-muscle/SRR_Acc_List.txt \
+metadata/human-aging-muscle/SRR_Acc_List.txt \
 human-aging-muscle-data
 ```
 
@@ -377,7 +377,7 @@ The resulting Excel file and PDF plots are available in the `star-fusion-results
 
 ```bash
 ./scripts/run-fasterq-dump.sh \
-SRA-metadata/human-aging-brain/SRR_Acc_List.txt \
+metadata/human-aging-brain/SRR_Acc_List.txt \
 human-aging-brain-data
 ```
 
