@@ -12,13 +12,14 @@ cleanup() {
 trap cleanup SIGINT
 
 usage() {
-  printf "Usage: %s -i <input_folder> -o <output_folder> -r <reference>\n" "$0"
+  printf "Usage: %s -i <input_folder> -o <output_folder> -r <reference> [-p <1|2|both>]\n" "$0"
   exit 1
 }
 
 CPU_COUNT=8
+PAIR_CHOICE="both" # Default to processing both _1 and _2 reads
 
-while getopts ":i:o:r:" opt; do
+while getopts ":i:o:r:p:" opt; do
   case $opt in
   i)
     IN="$OPTARG"
@@ -29,6 +30,9 @@ while getopts ":i:o:r:" opt; do
   r)
     REF="$OPTARG"
     ;;
+  p)
+    PAIR_CHOICE="$OPTARG"
+    ;;
   \?)
     printf "Invalid option -%s\n" "$OPTARG" >&2
     usage
@@ -37,6 +41,12 @@ while getopts ":i:o:r:" opt; do
 done
 
 if [ -z "$IN" ] || [ -z "$OUT" ] || [ -z "$REF" ]; then
+  usage
+fi
+
+# Validate PAIR_CHOICE
+if [[ "$PAIR_CHOICE" != "1" && "$PAIR_CHOICE" != "2" && "$PAIR_CHOICE" != "both" ]]; then
+  printf "Invalid value for -p: %s. Choose '1', '2', or 'both'.\n" "$PAIR_CHOICE" >&2
   usage
 fi
 
@@ -51,6 +61,7 @@ for file in "${files[@]}"; do
   printf "Checking file: %s\n" "$file"
   base_name=$(basename "$file")
   dir_name=$(dirname "$file")
+
   if [[ $base_name == *_1.fastq.gz ]]; then
     right_file="${dir_name}/${base_name/_1.fastq.gz/_2.fastq.gz}"
     if [ -f "$right_file" ]; then
@@ -85,6 +96,13 @@ for left_file in "${!paired_files[@]}"; do
 
   mkdir -p "${OUT}/${fn}"
 
+  if [[ "$PAIR_CHOICE" == "1" ]]; then
+    right_file=""
+  elif [[ "$PAIR_CHOICE" == "2" ]]; then
+    left_file="$right_file"
+    right_file=""
+  fi
+
   printf "Processing file(s) with STAR: %s %s\n" "$fnx" "${right_file:+and $(basename -- "$right_file")}"
 
   # STAR command for paired-end or single-end reads
@@ -117,7 +135,7 @@ for left_file in "${!paired_files[@]}"; do
     --quantMode GeneCounts | tee -a "${OUT}/${fn}/STAR_redirect_log.txt"
 
   # Filter the Chimeric.out.junction file for MT junctions and keep the header and comments
-  awk '/^#/ || (NR==1 || (($1 == "MT" || $1 == "mt") && ($4 == "MT" || $4 == "mt")))' "${OUT}/${fn}/Chimeric.out.junction" > "${OUT}/${fn}/filtered_Chimeric.out.junction"
+  awk '/^#/ || (NR==1 || (($1 == "MT" || $1 == "mt") && ($4 == "MT" || $4 == "mt")))' "${OUT}/${fn}/Chimeric.out.junction" >"${OUT}/${fn}/filtered_Chimeric.out.junction"
 
   # Run STAR-Fusion using the filtered Chimeric.out.junction file in the same output folder
   docker run -v "$(pwd)":/data --rm -u "$(id -u)":"$(id -g)" trinityctat/starfusion \
