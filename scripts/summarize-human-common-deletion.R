@@ -7,10 +7,10 @@ parse_args <- function() {
 
   # Define a list to hold the arguments with defaults
   args_list <- list(
-    input_folder = "star-fusion-results/human-aging-muscle",
-    metadata_folder = "metadata/human-aging-muscle",
-    output_folder = "star-fusion-results-summary/human-aging-muscle",
-    pca_color_by = "Study_group"
+    input_folder = "star-fusion-results/human-common-deletion",
+    metadata_folder = "metadata/human-common-deletion",
+    output_folder = "star-fusion-results-summary/human-common-deletion",
+    pca_color_by = "Deletion_status"
   )
 
   # Parse the command-line arguments
@@ -91,12 +91,7 @@ dataset_specific_processing <- function(df) {
   # Placeholder for dataset-specific data manipulation
   # Example: df <- df %>% mutate(new_column = existing_column * 2)
   df <- df %>%
-    mutate(Study_group = case_when(
-      study_arm == "Young" ~ "<30 years old",
-      study_arm %in% c("metPRT", "plaPRT") ~ ">65 years old",
-      TRUE ~ as.character(study_arm)
-    )) %>%
-    relocate(Study_group, .after = "study_arm")
+    rename(Deletion_status = deletion_status)
 
   # Return the (possibly modified) data frame
   return(df)
@@ -183,7 +178,7 @@ final_fusion_counts_with_fragments <- left_join(fragment_counts_processed,
 )
 
 # Read sample information and merge with final fusion counts
-sample_info <- read_csv(file.path(metadata_folder, "SraRunTable.txt"), show_col_types = FALSE)
+sample_info <- read_csv(file.path(metadata_folder, "metadata.csv"), show_col_types = FALSE)
 final_fusion_counts_with_fragments_and_SRA <- left_join(sample_info,
   final_fusion_counts_with_fragments,
   by = c("Run" = "sample")

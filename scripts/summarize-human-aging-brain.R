@@ -1,6 +1,42 @@
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
 
+# Function to parse named command-line arguments
+parse_args <- function() {
+  args <- commandArgs(trailingOnly = TRUE)
+
+  # Define a list to hold the arguments with defaults
+  args_list <- list(
+    input_folder = "star-fusion-results/human-aging-brain",
+    metadata_folder = "metadata/human-aging-brain",
+    output_folder = "star-fusion-results-summary/human-aging-brain",
+    pca_color_by = "Age_at_death"
+  )
+
+  # Parse the command-line arguments
+  for (arg in args) {
+    key_value <- strsplit(arg, "=")[[1]]
+    if (length(key_value) == 2) {
+      key <- key_value[1]
+      value <- key_value[2]
+      if (key %in% names(args_list)) {
+        args_list[[key]] <- value
+      }
+    }
+  }
+
+  return(args_list)
+}
+
+# Parse the command-line arguments
+args <- parse_args()
+
+# Assign command-line arguments to variables for input, metadata, and output
+input_folder <- args$input_folder
+metadata_folder <- args$metadata_folder
+output_folder <- args$output_folder
+pca_color_by <- args$pca_color_by
+
 # List of required packages
 required_packages <- c(
   "data.table", "ggfortify", "ggplot2", "janitor",
@@ -43,13 +79,6 @@ library(writexl)
 # DATASET-SPECIFIC CONFIGURATION
 # Update the following settings for each new dataset.
 ################################################################################
-
-# Assign command line arguments to variables for input, metadata, and output
-# Modify these paths according to your dataset structure
-input_folder <- "star-fusion-results/human-aging-brain" # Path to input data
-metadata_folder <- "SRA-metadata/human-aging-brain" # Path to metadata
-output_folder <- "star-fusion-results-summary/human-aging-brain" # Path for output
-pca_color_by <- "Age_at_death" # Variable for color coding in PCA plot
 
 # Modify this function to perform dataset-specific processing prior to output
 # Customize the data processing steps for your specific dataset needs

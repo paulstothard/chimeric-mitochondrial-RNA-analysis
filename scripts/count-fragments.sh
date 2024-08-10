@@ -3,12 +3,30 @@
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
 
-if [ "$#" -ne 1 ]; then
-    printf "Usage: %s <folder_name>\n" "$0"
+# Set the default number of threads
+THREADS=8
+
+# Function to show usage
+usage() {
+    printf "Usage: %s <folder_name> [threads]\n" "$0"
+    printf "\n"
+    printf "Arguments:\n"
+    printf "  folder_name  Name of the folder containing the FASTQ files.\n"
+    printf "  threads      Number of threads to use for parallel processing (default: 8).\n"
     exit 1
+}
+
+# Check the number of arguments
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    usage
 fi
 
 FOLDER_NAME="$1"
+
+# Check if a custom number of threads was provided
+if [ "$#" -eq 2 ]; then
+    THREADS="$2"
+fi
 
 if [ ! -d "$FOLDER_NAME" ]; then
     printf "Error: Directory '%s' does not exist.\n" "$FOLDER_NAME"
@@ -21,7 +39,8 @@ printf "file,million fragments\n" >"$OUTPUT_FILE"
 
 declare -A file_checked
 
-find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | while IFS= read -r file; do
+process_file() {
+    file="$1"
     fnx=$(basename -- "$file")
     fn="${fnx%.*.*}"
 
@@ -30,7 +49,7 @@ find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | while IFS= read -r file;
         base_fn="${fn%_?}"
         if [ "${file_checked[$base_fn]}" == "yes" ]; then
             printf "Skipping file '%s' as its pair has been processed.\n" "$fnx"
-            continue
+            return
         fi
         file_checked[$base_fn]="yes"
     fi
@@ -42,7 +61,12 @@ find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | while IFS= read -r file;
     printf "Count for file '%s' is '%s'\n" "$fnx" "$count"
 
     printf "%s,%s\n" "$fnx" "$count" >>"$OUTPUT_FILE"
+}
 
-done
+export -f process_file
+export OUTPUT_FILE
+export -A file_checked
+
+find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | parallel -j "$THREADS" process_file
 
 printf "Processing complete. Results saved in '%s'.\n" "$OUTPUT_FILE"

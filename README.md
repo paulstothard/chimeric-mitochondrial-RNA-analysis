@@ -57,6 +57,12 @@ git clone git@github.com:paulstothard/chimeric-mitochondrial-RNA-analysis
 
 or download the [latest release](https://github.com/paulstothard/chimeric-mitochondrial-RNA-analysis/releases/).
 
+Make the scripts in the `scripts` directory executable:
+
+```bash
+chmod u+x scripts/*
+```
+
 The scripts and procedures in this repository download RNA-Seq datasets from the NCBI SRA and use STAR-Fusion to identify candidate fusion transcripts. R code is used to parse the STAR-fusion output files for each dataset and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The raw counts and FFPM tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
 
 Dataset download, STAR-Fusion analysis, and R analysis are performed using scripts provided in the `scripts` directory. Single-end and paired-end datasets are supported. The scripts are designed to be run from the top-level directory in the repository. The output of the STAR-Fusion analysis for each dataset is written to a separate directory within a `star-fusion-results` directory. Due to the large size of the STAR-Fusion output files, the `star-fusion-results` directory with pre-generated files is not included in this repository. However, the Excel files containing the raw counts and FFPM tables, and the PCA plots in PDF format are included in the `star-fusion-results-summary` folder for each of the datasets analyzed in this study.
@@ -91,9 +97,9 @@ For the other dependencies a Conda environment can be created using the followin
 ```bash
 conda create -n chimeric-mtrna python=3.8
 conda activate chimeric-mtrna
-conda install -y -c bioconda sra-tools
+conda install -y -c bioconda fastp fastqc sra-tools trimmomatic
 conda install -y -c anaconda h5py
-conda install -y -c conda-forge r-base r-essentials
+conda install -y -c conda-forge parallel r-base r-essentials
 conda install -y -c conda-forge r-data.table r-ggfortify r-ggplot2 r-janitor r-openxlsx r-tidyverse r-writexl
 ```
 
@@ -255,7 +261,7 @@ rat-aging-muscle-data
 #### Merge the STAR-Fusion results for the rat aging muscle data
 
 ```bash
-./scripts/merge_star-fusion-results.sh \
+./scripts/merge-star-fusion-results.sh \
 rat-aging-muscle-data-results \
 star-fusion-results/rat-aging-muscle
 ```
@@ -303,7 +309,7 @@ human-Twinkle-mutation-data
 #### Merge the STAR-Fusion results for the human Twinkle mutation data
 
 ```bash
-./scripts/merge_star-fusion-results.sh \
+./scripts/merge-star-fusion-results.sh \
 human-Twinkle-mutation-data-results \
 star-fusion-results/human-Twinkle-mutation
 ```
@@ -351,7 +357,7 @@ human-aging-muscle-data
 #### Merge the STAR-Fusion results for the human aging muscle data
 
 ```bash
-./scripts/merge_star-fusion-results.sh \
+./scripts/merge-star-fusion-results.sh \
 human-aging-muscle-data-results \
 star-fusion-results/human-aging-muscle
 ```
@@ -399,7 +405,7 @@ human-aging-brain-data
 #### Merge the STAR-Fusion results for the human aging brain data
 
 ```bash
-./scripts/merge_star-fusion-results.sh \
+./scripts/merge-star-fusion-results.sh \
 human-aging-brain-data-results \
 star-fusion-results/human-aging-brain
 ```
