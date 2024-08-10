@@ -3,13 +3,6 @@
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
 
-cleanup() {
-    printf "\nCaught SIGINT signal. Stopping...\n"
-    exit 1
-}
-
-trap cleanup SIGINT
-
 usage() {
     printf "Usage: %s -i <input_folder> -o <output_folder> -a <adapters_file>\n" "$0"
     exit 1
@@ -37,6 +30,12 @@ done
 
 if [ -z "$IN" ] || [ -z "$OUT" ] || [ -z "$ADAPTERS_FILE" ]; then
     usage
+fi
+
+# Check if Trimmomatic is installed
+if ! command -v trimmomatic &>/dev/null; then
+    printf "Error: Trimmomatic is not installed or not in PATH.\n"
+    exit 1
 fi
 
 mkdir -p "$OUT"

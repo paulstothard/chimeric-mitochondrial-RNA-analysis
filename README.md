@@ -93,7 +93,7 @@ conda create -n chimeric-mtrna python=3.8
 conda activate chimeric-mtrna
 conda install -y -c bioconda fastp fastqc sra-tools trimmomatic
 conda install -y -c anaconda h5py
-conda install -y -c conda-forge parallel r-base r-essentials
+conda install -y -c conda-forge parallel pigz r-base r-essentials
 conda install -y -c conda-forge r-data.table r-ggfortify r-ggplot2 r-janitor r-openxlsx r-tidyverse r-writexl
 ```
 

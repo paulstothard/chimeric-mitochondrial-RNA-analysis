@@ -3,13 +3,6 @@
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
 
-cleanup() {
-    printf "\nCaught SIGINT signal. Stopping...\n"
-    exit 1
-}
-
-trap cleanup SIGINT
-
 usage() {
     printf "Usage: %s -i <input_folder> -o <output_folder>\n" "$0"
     exit 1
@@ -34,6 +27,12 @@ done
 
 if [ -z "$IN" ] || [ -z "$OUT" ]; then
     usage
+fi
+
+# Check if Fastp is installed
+if ! command -v fastp &>/dev/null; then
+    printf "Error: Fastp is not installed or not in PATH.\n"
+    exit 1
 fi
 
 mkdir -p "$OUT"
