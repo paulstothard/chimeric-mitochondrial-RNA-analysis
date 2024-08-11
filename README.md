@@ -108,8 +108,10 @@ STAR-Fusion requires a CTAT genome lib, which includes various data files used i
 #### Build a Dfam file for the rat genome
 
 ```bash
-wget https://www.dfam.org/releases/Dfam_3.3/families/Dfam.h5.gz
-gunzip Dfam.h5.gz
+if [ ! -f "Dfam.h5" ]; then
+    wget https://www.dfam.org/releases/Dfam_3.3/families/Dfam.h5.gz
+    gunzip Dfam.h5.gz
+fi
 ./scripts/famdb.py -i Dfam.h5 lineage -a Rattus
 ./scripts/famdb.py -i Dfam.h5 families -f hmm -a Rattus > rat_dfam.hmm
 ```
@@ -169,8 +171,10 @@ chown -R $HOST_UID:$HOST_GID /data/rat_ctat_genome_lib_build_dir_custom_MT"
 #### Build a Dfam file for the human genome
 
 ```bash
-wget https://www.dfam.org/releases/Dfam_3.3/families/Dfam.h5.gz
-gunzip Dfam.h5.gz
+if [ ! -f "Dfam.h5" ]; then
+    wget https://www.dfam.org/releases/Dfam_3.3/families/Dfam.h5.gz
+    gunzip Dfam.h5.gz
+fi
 ./scripts/famdb.py -i Dfam.h5 lineage -a human
 ./scripts/famdb.py -i Dfam.h5 families -f hmm -a human > human_dfam.hmm
 ```
