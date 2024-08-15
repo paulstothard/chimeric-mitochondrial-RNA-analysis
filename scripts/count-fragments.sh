@@ -80,7 +80,7 @@ export -f process_file
 export OUTPUT_FILE
 
 # Using --joblog to track processed jobs and avoid reprocessing
-find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | parallel --joblog "$JOBLOG_FILE" -j "$THREADS" process_file
+find "$FOLDER_NAME" -name "*.fastq.gz" -type f ! -name "*_2.fastq.gz" | sort | parallel --joblog "$JOBLOG_FILE" -j "$THREADS" process_file
 
 printf "Processing complete. Results saved in '%s'.\n" "$OUTPUT_FILE"
 
