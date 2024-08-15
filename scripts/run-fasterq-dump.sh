@@ -44,7 +44,14 @@ while read -r acc_num; do
         fi
     fi
 
+    # Run fasterq-dump
     fasterq-dump "$acc_num" -p -O "$OUTPUT_FOLDER"
+
+    # Check if fasterq-dump produced the expected output
+    if [ ! -f "${OUTPUT_FOLDER}/${acc_num}_1.fastq" ] && [ ! -f "${OUTPUT_FOLDER}/${acc_num}.fastq" ]; then
+        printf "Error: No FASTQ files found for accession %s after fasterq-dump.\n" "$acc_num"
+        exit 1
+    fi
 
     # Check if paired-end files exist
     if [ -f "${OUTPUT_FOLDER}/${acc_num}_1.fastq" ] && [ -f "${OUTPUT_FOLDER}/${acc_num}_2.fastq" ]; then
@@ -55,6 +62,7 @@ while read -r acc_num; do
         $COMPRESSOR "${OUTPUT_FOLDER}/${acc_num}.fastq"
     else
         printf "Warning: No FASTQ files found for accession %s\n" "$acc_num"
+        exit 1
     fi
 done <"$ACC_FILE"
 
