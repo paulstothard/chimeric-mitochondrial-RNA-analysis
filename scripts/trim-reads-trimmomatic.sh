@@ -3,14 +3,22 @@
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
 
+# Function to display usage
 usage() {
-    printf "Usage: %s -i <input_folder> -o <output_folder> -a <adapters_file>\n" "$0"
+    printf "Usage: %s -i <input_folder> -o <output_folder> -a <adapters_file> [-f]\n" "$0"
+    printf "\nOptions:\n"
+    printf "  -i <input_folder>   : Folder containing FASTQ files.\n"
+    printf "  -o <output_folder>  : Folder to save processed files.\n"
+    printf "  -a <adapters_file>  : File containing adapter sequences for Trimmomatic.\n"
+    printf "  -f                  : Force reprocessing even if completion files exist.\n"
     exit 1
 }
 
 CPU_COUNT=8
+FORCE_REPROCESSING=0
 
-while getopts ":i:o:a:" opt; do
+# Parse command-line arguments
+while getopts ":i:o:a:f" opt; do
     case $opt in
     i)
         IN="$OPTARG"
@@ -20,6 +28,9 @@ while getopts ":i:o:a:" opt; do
         ;;
     a)
         ADAPTERS_FILE="$OPTARG"
+        ;;
+    f)
+        FORCE_REPROCESSING=1
         ;;
     \?)
         printf "Invalid option -%s\n" "$OPTARG" >&2
@@ -40,15 +51,20 @@ fi
 
 mkdir -p "$OUT"
 
-mapfile -t files < <(find "$IN" -name "*.fastq.gz" -type f) # Find all FASTQ files
+# Find all FASTQ files in the input folder
+mapfile -t files < <(find "$IN" -name "*.fastq.gz" -type f)
 
 declare -A paired_files
 
-# Identify paired and single-end files
+# Identify paired-end and single-end files
 for file in "${files[@]}"; do
     printf "Checking file: %s\n" "$file"
     base_name=$(basename "$file")
     dir_name=$(dirname "$file")
+
+    # Expected file name formats:
+    # Paired-end: sample_1.fastq.gz and sample_2.fastq.gz
+    # Single-end: sample.fastq.gz
     if [[ $base_name == *_1.fastq.gz ]]; then
         right_file="${dir_name}/${base_name/_1.fastq.gz/_2.fastq.gz}"
         if [ -f "$right_file" ]; then
@@ -73,13 +89,21 @@ done
 for left_file in "${!paired_files[@]}"; do
     right_file=${paired_files[$left_file]}
     base_name=$(basename -- "$left_file")
+    output_prefix=$(echo "$base_name" | sed 's/_1.fastq.gz//')
+    completion_file="${OUT}/${output_prefix}_processed.txt"
+
+    # Check if the processing should be skipped
+    if [ -f "$completion_file" ] && [ "$FORCE_REPROCESSING" -eq 0 ]; then
+        printf "Skipping '%s' as it has already been processed. Use -f to force reprocessing.\n" "$base_name"
+        continue
+    fi
 
     # Set output paths
-    out_left="${OUT}/${base_name}"
-    out_right="${OUT}/${base_name/_1.fastq.gz/_2.fastq.gz}"
-
     if [ -n "$right_file" ]; then
         # Paired-end processing
+        out_left="${OUT}/${base_name}"
+        out_right="${OUT}/${base_name/_1.fastq.gz/_2.fastq.gz}"
+
         printf "Processing paired-end files: %s and %s\n" "$base_name" "$(basename -- "$right_file")"
         trimmomatic PE -threads "$CPU_COUNT" \
             "$left_file" "$right_file" \
@@ -97,6 +121,9 @@ for left_file in "${!paired_files[@]}"; do
             ILLUMINACLIP:"$ADAPTERS_FILE":2:20:5:1:true \
             LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
     fi
+
+    # Create a completion file to mark completion
+    touch "$completion_file"
 done
 
 printf "Trimming complete.\n"

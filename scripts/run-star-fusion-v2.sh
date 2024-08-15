@@ -12,14 +12,15 @@ cleanup() {
 trap cleanup SIGINT
 
 usage() {
-  printf "Usage: %s -i <input_folder> -o <output_folder> -r <reference> [-p <1|2|both>]\n" "$0"
+  printf "Usage: %s -i <input_folder> -o <output_folder> -r <reference> [-p <1|2|both>] [-f]\n" "$0"
   exit 1
 }
 
 CPU_COUNT=8
 PAIR_CHOICE="both" # Default to processing both _1 and _2 reads
+FORCE_REPROCESSING=0
 
-while getopts ":i:o:r:p:" opt; do
+while getopts ":i:o:r:p:f" opt; do
   case $opt in
   i)
     IN="$OPTARG"
@@ -32,6 +33,9 @@ while getopts ":i:o:r:p:" opt; do
     ;;
   p)
     PAIR_CHOICE="$OPTARG"
+    ;;
+  f)
+    FORCE_REPROCESSING=1
     ;;
   \?)
     printf "Invalid option -%s\n" "$OPTARG" >&2
@@ -88,9 +92,11 @@ for left_file in "${!paired_files[@]}"; do
   fnx=$(basename -- "$left_file")
   fn=$(printf "%s" "$fnx" | cut -f 1 -d '.' | cut -f 1 -d '_')
 
-  if [ -d "${OUT}/${fn}" ]; then
-    printf "Output already exists for '%s'\n" "$fnx"
-    printf "Skipping\n"
+  completion_file="${OUT}/${fn}/processing_complete.txt"
+
+  # Check if the processing should be skipped
+  if [ -f "$completion_file" ] && [ "$FORCE_REPROCESSING" -eq 0 ]; then
+    printf "Processing already completed for '%s'. Skipping.\n" "$fn"
     continue
   fi
 
@@ -146,4 +152,10 @@ for left_file in "${!paired_files[@]}"; do
     --min_FFPM 0 \
     --CPU "$CPU_COUNT" \
     -O /data/"${OUT}/${fn}" | tee -a "${OUT}/${fn}/STAR-Fusion_redirect_log.txt"
+
+  # Create a completion file to indicate processing is done
+  touch "$completion_file"
+
 done
+
+printf "Processing complete.\n"

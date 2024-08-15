@@ -3,20 +3,30 @@
 # Author: Paul Stothard
 # Contact: stothard@ualberta.ca
 
+# Function to display usage
 usage() {
-    printf "Usage: %s -i <input_folder> -o <output_folder>\n" "$0"
+    printf "Usage: %s -i <input_folder> -o <output_folder> [-f]\n" "$0"
+    printf "\nOptions:\n"
+    printf "  -i <input_folder>   : Folder containing FASTQ files.\n"
+    printf "  -o <output_folder>  : Folder to save processed files and reports.\n"
+    printf "  -f                  : Force reprocessing even if completion files exist.\n"
     exit 1
 }
 
 CPU_COUNT=8
+FORCE_REPROCESSING=0
 
-while getopts ":i:o:" opt; do
+# Parse command-line arguments
+while getopts ":i:o:f" opt; do
     case $opt in
     i)
         IN="$OPTARG"
         ;;
     o)
         OUT="$OPTARG"
+        ;;
+    f)
+        FORCE_REPROCESSING=1
         ;;
     \?)
         printf "Invalid option -%s\n" "$OPTARG" >&2
@@ -37,15 +47,20 @@ fi
 
 mkdir -p "$OUT"
 
-mapfile -t files < <(find "$IN" -name "*.fastq.gz" -type f) # Find all FASTQ files
+# Find all FASTQ files in the input folder
+mapfile -t files < <(find "$IN" -name "*.fastq.gz" -type f)
 
 declare -A paired_files
 
-# Identify paired and single-end files
+# Identify paired-end and single-end files
 for file in "${files[@]}"; do
     printf "Checking file: %s\n" "$file"
     base_name=$(basename "$file")
     dir_name=$(dirname "$file")
+
+    # Expected file name formats:
+    # Paired-end: sample_1.fastq.gz and sample_2.fastq.gz
+    # Single-end: sample.fastq.gz
     if [[ $base_name == *_1.fastq.gz ]]; then
         right_file="${dir_name}/${base_name/_1.fastq.gz/_2.fastq.gz}"
         if [ -f "$right_file" ]; then
@@ -71,6 +86,13 @@ for left_file in "${!paired_files[@]}"; do
     right_file=${paired_files[$left_file]}
     base_name=$(basename -- "$left_file")
     output_prefix=$(echo "$base_name" | sed 's/_1.fastq.gz//')
+    completion_file="${OUT}/${output_prefix}_processed.txt"
+
+    # Check if the processing should be skipped
+    if [ -f "$completion_file" ] && [ "$FORCE_REPROCESSING" -eq 0 ]; then
+        printf "Skipping '%s' as it has already been processed. Use -f to force reprocessing.\n" "$base_name"
+        continue
+    fi
 
     # Set output paths
     if [ -n "$right_file" ]; then
@@ -91,6 +113,9 @@ for left_file in "${!paired_files[@]}"; do
         printf "Processing single-end file: %s\n" "$base_name"
         fastp -i "$left_file" -o "$out_single" -h "$report" -j "$json_report" -w "$CPU_COUNT"
     fi
+
+    # Create a completion file to mark completion
+    touch "$completion_file"
 done
 
 printf "Trimming complete.\n"

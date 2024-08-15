@@ -5,16 +5,32 @@
 
 # Set the default number of threads
 THREADS=8
+FORCE_REPROCESSING=0
 
 # Function to show usage
 usage() {
-    printf "Usage: %s <folder_name> [threads]\n" "$0"
-    printf "\n"
-    printf "Arguments:\n"
+    printf "Usage: %s <folder_name> [threads] [-f]\n" "$0"
+    printf "\nArguments:\n"
     printf "  folder_name  Name of the folder containing the FASTQ files.\n"
     printf "  threads      Number of threads to use for parallel processing (default: 8).\n"
+    printf "  -f           Force reprocessing by deleting the output file and job log.\n"
     exit 1
 }
+
+# Parse command-line arguments
+while getopts ":f" opt; do
+    case $opt in
+    f)
+        FORCE_REPROCESSING=1
+        ;;
+    \?)
+        printf "Invalid option -%s\n" "$OPTARG" >&2
+        usage
+        ;;
+    esac
+done
+
+shift $((OPTIND - 1))
 
 # Check the number of arguments
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
@@ -34,35 +50,22 @@ if [ ! -d "$FOLDER_NAME" ]; then
 fi
 
 OUTPUT_FILE="${FOLDER_NAME}/fragment_counts.txt"
-PROCESSED_FILE="${FOLDER_NAME}/processed_files.txt"
+JOBLOG_FILE="${FOLDER_NAME}/parallel_joblog.txt"
 
-# Initialize output files
-printf "file,million fragments\n" >"$OUTPUT_FILE"
-: >"$PROCESSED_FILE" # Empty the processed files list
+# If force reprocessing is requested, delete the output file and job log
+if [ "$FORCE_REPROCESSING" -eq 1 ]; then
+    printf "Force reprocessing enabled. Deleting existing output and job log files.\n"
+    rm -f "$OUTPUT_FILE" "$JOBLOG_FILE"
+fi
+
+# Initialize output file if it doesn't exist
+if [ ! -f "$OUTPUT_FILE" ]; then
+    printf "file,million fragments\n" >"$OUTPUT_FILE"
+fi
 
 process_file() {
     file="$1"
     fnx=$(basename -- "$file")
-    fn="${fnx%.*.*}"
-
-    # Handle paired-end files (e.g., *_1.fastq.gz or *_2.fastq.gz)
-    if [[ $fnx =~ _[12].fastq.gz ]]; then
-        base_fn="${fn%_?}"
-        # Check if the pair has already been processed
-        if grep -q "^$base_fn\$" "$PROCESSED_FILE"; then
-            printf "Skipping file '%s' as its pair has been processed.\n" "$fnx"
-            return
-        fi
-        echo "$base_fn" >>"$PROCESSED_FILE"
-    else
-        # For single-end files or files that do not match the paired-end pattern
-        base_fn="$fn"
-        if grep -q "^$base_fn\$" "$PROCESSED_FILE"; then
-            printf "Skipping file '%s' as it has already been processed.\n" "$fnx"
-            return
-        fi
-        echo "$base_fn" >>"$PROCESSED_FILE"
-    fi
 
     printf "Processing file '%s'\n" "$fnx"
 
@@ -75,8 +78,12 @@ process_file() {
 
 export -f process_file
 export OUTPUT_FILE
-export PROCESSED_FILE
 
-find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | parallel -j "$THREADS" process_file
+# Using --joblog to track processed jobs and avoid reprocessing
+find "$FOLDER_NAME" -name "*.fastq.gz" -type f | sort | parallel --joblog "$JOBLOG_FILE" -j "$THREADS" process_file
 
 printf "Processing complete. Results saved in '%s'.\n" "$OUTPUT_FILE"
+
+# Expected FASTQ file naming conventions:
+# Paired-end reads: sample_1.fastq.gz and sample_2.fastq.gz
+# Single-end reads: sample.fastq.gz

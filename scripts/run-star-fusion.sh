@@ -13,13 +13,20 @@ cleanup() {
 trap cleanup SIGINT
 
 usage() {
-  printf "Usage: %s -i <input_folder> -o <output_folder> -r <reference>\n" "$0"
+  printf "Usage: %s -i <input_folder> -o <output_folder> -r <reference> [-f]\n" "$0"
+  printf "\nOptions:\n"
+  printf "  -i <input_folder>   : Folder containing FASTQ files.\n"
+  printf "  -o <output_folder>  : Folder to save processed files.\n"
+  printf "  -r <reference>      : Reference genome directory.\n"
+  printf "  -f                  : Force reprocessing even if completion files exist.\n"
   exit 1
 }
 
 CPU_COUNT=8
+FORCE_REPROCESSING=0
 
-while getopts ":i:o:r:" opt; do
+# Parse command-line arguments
+while getopts ":i:o:r:f" opt; do
   case $opt in
   i)
     IN="$OPTARG"
@@ -29,6 +36,9 @@ while getopts ":i:o:r:" opt; do
     ;;
   r)
     REF="$OPTARG"
+    ;;
+  f)
+    FORCE_REPROCESSING=1
     ;;
   \?)
     printf "Invalid option -%s\n" "$OPTARG" >&2
@@ -78,13 +88,16 @@ for left_file in "${!paired_files[@]}"; do
   fnx=$(basename -- "$left_file")
   fn=$(printf "%s" "$fnx" | cut -f 1 -d '.' | cut -f 1 -d '_') # Extract the common part of the filename for paired-end, dot for single-end
 
-  if [ -d "${OUT}/${fn}" ]; then
-    printf "Output already exists for '%s'\n" "$fnx"
-    printf "Skipping\n"
+  # Define the completion file
+  completion_file="${OUT}/${fn}_completed.txt"
+
+  # Check if the processing should be skipped
+  if [ -f "$completion_file" ] && [ "$FORCE_REPROCESSING" -eq 0 ]; then
+    printf "Skipping '%s' as it has already been processed. Use -f to force reprocessing.\n" "$fnx"
     continue
   fi
 
-  mkdir "${OUT}/${fn}"
+  mkdir -p "${OUT}/${fn}"
 
   if [ -n "$right_file" ]; then
     printf "Processing paired-end files: %s and %s\n" "$fnx" "$(basename -- "$right_file")"
@@ -108,4 +121,9 @@ for left_file in "${!paired_files[@]}"; do
       --CPU "$CPU_COUNT" \
       -O /data/"${OUT}/${fn}" | tee -a "${OUT}/${fn}/redirect_log.txt"
   fi
+
+  # Create a completion file to mark completion
+  touch "$completion_file"
 done
+
+printf "Processing complete.\n"
