@@ -190,7 +190,7 @@ final_fusion_counts_with_fragments_and_SRA <- left_join(sample_info,
 # Perform dataset-specific processing
 final_fusion_counts_with_metadata <- dataset_specific_processing(final_fusion_counts_with_fragments_and_SRA)
 
-# Checking if 'million fragments' column exists
+# Check if 'million fragments' column exists
 if ("million fragments" %in% colnames(final_fusion_counts_with_metadata)) {
   # Get the index of the 'million fragments' column
   index_million_fragments <- which(colnames(final_fusion_counts_with_metadata) == "million fragments")
