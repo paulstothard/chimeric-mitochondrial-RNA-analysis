@@ -122,8 +122,13 @@ for left_file in "${!paired_files[@]}"; do
       -O /data/"${OUT}/${fn}" | tee -a "${OUT}/${fn}/redirect_log.txt"
   fi
 
-  # Create a completion file to mark completion
-  touch "$completion_file"
+  # Check if STAR-Fusion was successful before creating the completion file
+  if [ $? -eq 0 ]; then
+    touch "$completion_file"
+    printf "Processing completed successfully for '%s'.\n" "$fn"
+  else
+    printf "STAR-Fusion failed for '%s'.\n" "$fn" >&2
+  fi
 done
 
 printf "Processing complete.\n"

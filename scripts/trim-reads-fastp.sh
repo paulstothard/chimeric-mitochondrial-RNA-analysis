@@ -114,8 +114,13 @@ for left_file in "${!paired_files[@]}"; do
         fastp -i "$left_file" -o "$out_single" -h "$report" -j "$json_report" -w "$CPU_COUNT"
     fi
 
-    # Create a completion file to mark completion
-    touch "$completion_file"
+    # Check if Fastp was successful before creating the completion file
+    if [ $? -eq 0 ]; then
+        touch "$completion_file"
+        printf "Processing completed successfully for '%s'.\n" "$base_name"
+    else
+        printf "Fastp failed for '%s'.\n" "$base_name" >&2
+    fi
 done
 
 printf "Trimming complete.\n"

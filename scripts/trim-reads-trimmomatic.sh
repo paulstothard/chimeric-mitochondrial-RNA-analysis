@@ -122,8 +122,13 @@ for left_file in "${!paired_files[@]}"; do
             LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
     fi
 
-    # Create a completion file to mark completion
-    touch "$completion_file"
+    # Check if Trimmomatic was successful before creating the completion file
+    if [ $? -eq 0 ]; then
+        touch "$completion_file"
+        printf "Processing completed successfully for '%s'.\n" "$base_name"
+    else
+        printf "Trimmomatic failed for '%s'.\n" "$base_name" >&2
+    fi
 done
 
 printf "Trimming complete.\n"

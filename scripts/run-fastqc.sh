@@ -65,8 +65,13 @@ for file in "${files[@]}"; do
     # Run FastQC
     fastqc -t "$CPU_COUNT" -o "$OUT" "$file"
 
-    # Create a completion file to mark completion
-    touch "$completion_file"
+    # Check if FastQC was successful before creating the completion file
+    if [ $? -eq 0 ]; then
+        touch "$completion_file"
+        printf "Completed successfully: %s\n" "$base_name"
+    else
+        printf "FastQC failed for: %s\n" "$base_name" >&2
+    fi
 done
 
 printf "FastQC analysis complete.\n"

@@ -140,22 +140,32 @@ for left_file in "${!paired_files[@]}"; do
     --runThreadN "$CPU_COUNT" \
     --quantMode GeneCounts | tee -a "${OUT}/${fn}/STAR_redirect_log.txt"
 
-  # Filter the Chimeric.out.junction file for MT junctions and keep the header and comments
-  awk '/^#/ || (NR==1 || (($1 == "MT" || $1 == "mt") && ($4 == "MT" || $4 == "mt")))' "${OUT}/${fn}/Chimeric.out.junction" >"${OUT}/${fn}/filtered_Chimeric.out.junction"
+  # Check if STAR was successful
+  if [ $? -eq 0 ]; then
+    # Filter the Chimeric.out.junction file for MT junctions and keep the header and comments
+    awk '/^#/ || (NR==1 || (($1 == "MT" || $1 == "mt") && ($4 == "MT" || $4 == "mt")))' "${OUT}/${fn}/Chimeric.out.junction" >"${OUT}/${fn}/filtered_Chimeric.out.junction"
 
-  # Run STAR-Fusion using the filtered Chimeric.out.junction file in the same output folder
-  docker run -v "$(pwd)":/data --rm -u "$(id -u)":"$(id -g)" trinityctat/starfusion \
-    /usr/local/src/STAR-Fusion/STAR-Fusion \
-    --genome_lib_dir /data/"${REF}" \
-    -J /data/"${OUT}/${fn}/filtered_Chimeric.out.junction" \
-    --no_remove_dups \
-    --min_FFPM 0 \
-    --CPU "$CPU_COUNT" \
-    -O /data/"${OUT}/${fn}" | tee -a "${OUT}/${fn}/STAR-Fusion_redirect_log.txt"
+    # Run STAR-Fusion using the filtered Chimeric.out.junction file in the same output folder
+    docker run -v "$(pwd)":/data --rm -u "$(id -u)":"$(id -g)" trinityctat/starfusion \
+      /usr/local/src/STAR-Fusion/STAR-Fusion \
+      --genome_lib_dir /data/"${REF}" \
+      -J /data/"${OUT}/${fn}/filtered_Chimeric.out.junction" \
+      --no_remove_dups \
+      --min_FFPM 0 \
+      --CPU "$CPU_COUNT" \
+      -O /data/"${OUT}/${fn}" | tee -a "${OUT}/${fn}/STAR-Fusion_redirect_log.txt"
 
-  # Create a completion file to indicate processing is done
-  touch "$completion_file"
-
+    # Check if STAR-Fusion was successful
+    if [ $? -eq 0 ]; then
+      # Create a completion file to indicate processing is done
+      touch "$completion_file"
+      printf "Processing completed successfully for '%s'.\n" "$fn"
+    else
+      printf "STAR-Fusion failed for '%s'.\n" "$fn" >&2
+    fi
+  else
+    printf "STAR failed for '%s'.\n" "$fn" >&2
+  fi
 done
 
 printf "Processing complete.\n"
