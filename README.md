@@ -65,6 +65,8 @@ Custom GTF files are used with STAR-Fusion in order to convey that the MT-ATP8 a
 
 The detailed analysis procedure is described below and can be used to reproduce the results.
 
+The included `run-star-fusion-v2.sh` script can be used in place of the `run-star-fusion.sh` script to speed up the analysis. The updated script also runs STAR and STAR-Fusion separately, providing more control over the STAR parameters, which can be useful for optimizing settings for certain datasets.
+
 ## RNA-Seq datasets
 
 Four datasets are analyzed in this study:
