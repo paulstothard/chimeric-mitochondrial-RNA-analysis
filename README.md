@@ -253,7 +253,8 @@ rat-aging-muscle-data
 ./scripts/run-star-fusion.sh \
 -i rat-aging-muscle-data \
 -o rat-aging-muscle-data-results \
--r rat_ctat_genome_lib_build_dir_custom_MT
+-r rat_ctat_genome_lib_build_dir_custom_MT \
+-p 1
 ```
 
 #### Merge the STAR-Fusion results for the rat aging muscle data
@@ -301,7 +302,8 @@ human-Twinkle-mutation-data
 ./scripts/run-star-fusion.sh \
 -i human-Twinkle-mutation-data \
 -o human-Twinkle-mutation-data-results \
--r human_ctat_genome_lib_build_dir_custom_MT
+-r human_ctat_genome_lib_build_dir_custom_MT \
+-p 1
 ```
 
 #### Merge the STAR-Fusion results for the human Twinkle mutation data
@@ -349,7 +351,8 @@ human-aging-muscle-data
 ./scripts/run-star-fusion.sh \
 -i human-aging-muscle-data \
 -o human-aging-muscle-data-results \
--r human_ctat_genome_lib_build_dir_custom_MT
+-r human_ctat_genome_lib_build_dir_custom_MT \
+-p 1
 ```
 
 #### Merge the STAR-Fusion results for the human aging muscle data
@@ -397,7 +400,8 @@ human-aging-brain-data
 ./scripts/run-star-fusion.sh \
 -i human-aging-brain-data \
 -o human-aging-brain-data-results \
--r human_ctat_genome_lib_build_dir_custom_MT
+-r human_ctat_genome_lib_build_dir_custom_MT \
+-p 1
 ```
 
 #### Merge the STAR-Fusion results for the human aging brain data
