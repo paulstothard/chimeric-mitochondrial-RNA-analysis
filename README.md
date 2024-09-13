@@ -40,6 +40,14 @@
       - [Merge the STAR-Fusion results for the human aging brain data](#merge-the-star-fusion-results-for-the-human-aging-brain-data)
       - [Add fragment counts to the human aging brain STAR-Fusion results](#add-fragment-counts-to-the-human-aging-brain-star-fusion-results)
       - [Compare the STAR-Fusion results among samples for the human aging brain data](#compare-the-star-fusion-results-among-samples-for-the-human-aging-brain-data)
+    - [Human common deletion dataset analysis](#human-common-deletion-dataset-analysis)
+      - [Download the human common deletion sequence data](#download-the-human-common-deletion-sequence-data)
+      - [Trim the human common deletion sequence data](#trim-the-human-common-deletion-sequence-data)
+      - [Add fragment counts to the human common deletion data](#add-fragment-counts-to-the-human-common-deletion-data)
+      - [Run STAR-Fusion on the human common deletion data](#run-star-fusion-on-the-human-common-deletion-data)
+      - [Merge the STAR-Fusion results for the human common deletion data](#merge-the-star-fusion-results-for-the-human-common-deletion-data)
+      - [Add fragment counts to the human common deletion STAR-Fusion results](#add-fragment-counts-to-the-human-common-deletion-star-fusion-results)
+      - [Compare the STAR-Fusion results among samples for the human common deletion data](#compare-the-star-fusion-results-among-samples-for-the-human-common-deletion-data)
 
 ## Overview
 
@@ -67,7 +75,7 @@ The detailed analysis procedure is described below and can be used to reproduce 
 
 ## RNA-Seq datasets
 
-Four datasets are analyzed in this study:
+Five datasets are analyzed in this study:
 
 | Name                   | NCBI BioProject                                                       |
 |------------------------|-----------------------------------------------------------------------|
@@ -75,6 +83,7 @@ Four datasets are analyzed in this study:
 | Human Twinkle mutation | [PRJNA532885](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA532885) |
 | Human aging muscle     | [PRJNA662072](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA662072) |
 | Human aging brain      | [PRJNA283498](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA283498) |
+| Human common deletion  | Available by request |
 
 ## Dependencies
 
@@ -422,7 +431,60 @@ star-fusion-results/human-aging-brain
 #### Compare the STAR-Fusion results among samples for the human aging brain data
 
 ```bash
-Rscript scripts/human-aging-brain.R
+Rscript scripts/summarize-human-aging-brain.R
 ```
 
 The resulting Excel file and PDF plots are available in the `star-fusion-results-summary/human-aging-brain` directory.
+
+### Human common deletion dataset analysis
+
+#### Download the human common deletion sequence data
+
+This data is available by request.
+
+#### Trim the human common deletion sequence data
+
+```bash
+./scripts/trim-reads-fastp.sh \
+-i human-common-deletion-data \
+-o human-common-deletion-data-trimmed
+```
+
+#### Add fragment counts to the human common deletion data
+
+```bash
+./scripts/count-fragments.sh human-common-deletion-data-trimmed
+```
+
+#### Run STAR-Fusion on the human common deletion data
+
+```bash
+./scripts/run-star-fusion.sh \
+-i human-common-deletion-data-trimmed \
+-o human-common-deletion-data-results \
+-r human_ctat_genome_lib_build_dir_custom_MT \
+-p 1
+```
+
+#### Merge the STAR-Fusion results for the human common deletion data
+
+```bash
+./scripts/merge-star-fusion-results.sh \
+human-common-deletion-results \
+star-fusion-results/human-common-deletion
+```
+
+#### Add fragment counts to the human common deletion STAR-Fusion results
+
+```bash
+cp human-common-deletion-data-trimmed/fragment_counts.txt \
+star-fusion-results/human-common-deletion
+```
+
+#### Compare the STAR-Fusion results among samples for the human common deletion data
+
+```bash
+Rscript scripts/summarize-human-common-deletion.R
+```
+
+The resulting Excel file and PDF plots are available in the `star-fusion-results-summary/human-common-deletion` directory.
