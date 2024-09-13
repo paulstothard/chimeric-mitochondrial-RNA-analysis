@@ -65,11 +65,11 @@ git clone git@github.com:paulstothard/chimeric-mitochondrial-RNA-analysis
 
 or download the [latest release](https://github.com/paulstothard/chimeric-mitochondrial-RNA-analysis/releases/).
 
-The scripts and procedures in this repository download RNA-Seq datasets from the NCBI SRA and use STAR-Fusion to identify candidate fusion transcripts. R code is used to parse the STAR-fusion output files for each dataset and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The raw counts and FFPM tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
+The scripts and procedures in this repository use STAR-Fusion to identify candidate fusion transcripts. R code is used to parse the STAR-fusion output files for each dataset and to enumerate mitochondrial gene fusions within each sample. For each observed fusion type (based on genes involved and ignoring the precise boundaries of the fusion) the total number of supporting reads is calculated, using values extracted from the JunctionReadCount column. Next, a table termed "raw counts" is generated, consisting of samples (rows) and fusion types (columns) with cells containing the summation of the JunctionReadCount values. A second table, termed "FFPM" for "fusion fragments per million total RNA-Seq fragments" is generated from the first table by dividing each raw count by the total number of sequenced fragments (in millions) in the corresponding sample. SRA metadata is programmatically added to each table as additional columns, to facilitate further analyses. The raw counts and FFPM tables are written to a single Excel file as separate worksheets. PCA plots with and without sample labels and loadings are produced from the FFPM table and saved in PDF format.
 
-Dataset download, STAR-Fusion analysis, and R analysis are performed using scripts provided in the `scripts` directory. Single-end and paired-end datasets are supported. The scripts are designed to be run from the top-level directory in the repository. The output of the STAR-Fusion analysis for each dataset is written to a separate directory within a `star-fusion-results` directory. Due to the large size of the STAR-Fusion output files, the `star-fusion-results` directory with pre-generated files is not included in this repository. However, the Excel files containing the raw counts and FFPM tables, and the PCA plots in PDF format are included in the `star-fusion-results-summary` folder for each of the datasets analyzed in this study.
+Dataset download, STAR-Fusion analysis, and R analysis are performed using scripts provided in the `scripts` directory. The scripts are designed to be run from the top-level directory in the repository. The output of the STAR-Fusion analysis for each dataset is written to a separate directory within a `star-fusion-results` directory. Excel files containing the raw counts and FFPM tables, and the PCA plots in PDF format are included in the `star-fusion-results-summary` folder for each of the datasets analyzed in this study.
 
-Custom GTF files are used with STAR-Fusion in order to convey that the MT-ATP8 and MT-ATP6 genes and the MT-ND4l and Mt-ND4 genes are encoded within single transcripts that do not represent chimeric mitochondrial RNA.
+Custom GTF files are used with STAR-Fusion to convey that the MT-ATP8 and MT-ATP6 genes, as well as the MT-ND4L and MT-ND4 genes, are encoded within single transcripts that do not represent chimeric mitochondrial RNA.
 
 The detailed analysis procedure is described below and can be used to reproduce the results.
 
@@ -77,13 +77,13 @@ The detailed analysis procedure is described below and can be used to reproduce 
 
 Five datasets are analyzed in this study:
 
-| Name                   | NCBI BioProject                                                       |
-|------------------------|-----------------------------------------------------------------------|
-| Rat aging muscle       | [PRJNA793055](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA793055/)   |
+| Name                   | Source                                                                   |
+|------------------------|--------------------------------------------------------------------------|
+| Rat aging muscle       | [PRJNA793055](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA793055/)      |
 | Human Twinkle mutation | [PRJNA532885](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA532885) |
 | Human aging muscle     | [PRJNA662072](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA662072) |
 | Human aging brain      | [PRJNA283498](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA283498) |
-| Human common deletion  | Available by request |
+| Human common deletion  | Available by request                                                     |
 
 ## Dependencies
 
@@ -470,7 +470,7 @@ This data is available by request.
 
 ```bash
 ./scripts/merge-star-fusion-results.sh \
-human-common-deletion-results \
+human-common-deletion-data-results \
 star-fusion-results/human-common-deletion
 ```
 
