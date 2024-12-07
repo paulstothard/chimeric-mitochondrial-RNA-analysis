@@ -53,6 +53,10 @@
 
 This repository contains the code and methods used to characterize chimeric mitochondrial RNA transcripts in RNA-Seq datasets.
 
+The results of this study are described in the following [publication](https://pubmed.ncbi.nlm.nih.gov/39603705/):
+
+> Vandiver AR, Herbst A, Stothard P, Wanagat J. Chimeric mitochondrial RNA transcripts predict mitochondrial genome deletion mutations in mitochondrial genetic diseases and aging. Genome Res. 2024 Nov 27:gr.279072.124. doi: 10.1101/gr.279072.124. Epub ahead of print. PMID: 39603705.
+
 To download the repository:
 
 ```bash
